@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #0a0a0c;
+  --foreground: #ededed;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-geist-sans);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Efecto de Scanline Cinematográfico */
+body::before {
+  content: " ";
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%,
+    rgba(0, 0, 0, 0.1) 50%
+  ),
+  linear-gradient(
+    90deg,
+    rgba(255, 0, 0, 0.02),
+    rgba(0, 255, 0, 0.01),
+    rgba(0, 0, 255, 0.02)
+  );
+  z-index: 100;
+  background-size: 100% 4px, 3px 100%;
+  pointer-events: none;
+}
+
+/* Optimización para Canvas 3D */
+canvas {
+  touch-action: none;
+}
+
+@layer components {
+  .glass-panel {
+    @apply bg-aperture-dark/60 backdrop-blur-md border border-aperture-gray;
+  }
+  
+  .tech-button {
+    @apply px-4 py-2 bg-transparent border border-aperture-orange text-aperture-orange 
+           hover:bg-aperture-orange hover:text-black transition-all duration-300
+           font-mono uppercase tracking-widest text-xs;
+  }
+}
