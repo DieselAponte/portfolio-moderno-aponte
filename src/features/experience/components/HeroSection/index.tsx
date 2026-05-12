@@ -1,0 +1,182 @@
+"use client";
+
+import { motion } from "framer-motion";
+
+interface CertificationBadge {
+	id: string;
+	label: string;
+	meta: string;
+}
+
+interface CarouselItem {
+	id: string;
+	title: string;
+	subtitle: string;
+	image?: string;
+}
+
+const certifications: CertificationBadge[] = [
+	{ id: "IPMA", label: "IPMA", meta: "LEVEL D // 2024" },
+	{ id: "SCRUM", label: "SCRUM", meta: "PSM-1 // 2023" },
+	{ id: "UX", label: "UX", meta: "CERTIFIED // 2022" },
+	{ id: "R3F", label: "R3F", meta: "PIPELINE // 2025" },
+];
+
+const carouselItems: CarouselItem[] = [
+	{
+		id: "01",
+		title: "Facility overview",
+		subtitle: "Aperture labs",
+		image: "/images/portal-ending.jpg",
+	},
+	{
+		id: "02",
+		title: "Field diagnostics",
+		subtitle: "Operator UI",
+		image: "/images/portal-ending.jpg",
+	},
+	{
+		id: "03",
+		title: "Telemetry vault",
+		subtitle: "Signal archive",
+		image: "/images/portal-ending.jpg",
+	},
+];
+
+const AutoCarousel = () => {
+	const trackItems = [...carouselItems, ...carouselItems];
+
+	return (
+		<div className="relative overflow-hidden rounded-2xl border border-aperture-yellow/20 bg-[#10100b] p-5 shadow-[0_24px_60px_rgba(0,0,0,0.55)]">
+			<div className="absolute inset-0 pointer-events-none opacity-[0.12] bg-[linear-gradient(to_bottom,transparent_0%,transparent_50%,black_51%,transparent_52%)] bg-[length:100%_4px]" />
+			<div className="absolute inset-0 pointer-events-none opacity-[0.08] bg-[radial-gradient(circle_at_top,rgba(242,201,76,0.2),transparent_60%)]" />
+			<div className="absolute inset-0 pointer-events-none opacity-[0.05] mix-blend-screen bg-[url('https://www.transparenttextures.com/patterns/asfalt-dark.png')]" />
+
+			<motion.div
+				className="flex gap-6"
+				animate={{ x: ["0%", "-50%"] }}
+				transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
+				style={{ width: "max-content" }}
+			>
+				{trackItems.map((item, index) => (
+					<div
+						key={`${item.id}-${index}`}
+						className="relative h-[320px] w-[240px] overflow-hidden rounded-xl border border-white/10 bg-black"
+					>
+						{item.image ? (
+							<img
+								src={item.image}
+								alt={item.title}
+								className="h-full w-full object-cover opacity-80"
+							/>
+						) : (
+							<div className="h-full w-full bg-[linear-gradient(135deg,rgba(242,201,76,0.25),rgba(10,10,12,0.9))]" />
+						)}
+						<div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+						<div className="absolute bottom-4 left-4 right-4 space-y-1">
+							<p className="text-[10px] font-mono uppercase tracking-[0.35em] text-aperture-yellow">
+								Log {item.id}
+							</p>
+							<p className="text-sm font-semibold text-[#f0f0f0]">
+								{item.title}
+							</p>
+							<p className="text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-400">
+								{item.subtitle}
+							</p>
+						</div>
+					</div>
+				))}
+			</motion.div>
+		</div>
+	);
+};
+
+export default function HeroSection() {
+	return (
+		<section className="relative min-h-screen w-full overflow-hidden px-6 pb-24 pt-36">
+			<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(242,201,76,0.12),transparent_55%)]" />
+			<div className="pointer-events-none absolute inset-0 opacity-[0.06] bg-[linear-gradient(to_bottom,transparent_0%,transparent_50%,black_51%,transparent_52%)] bg-[length:100%_4px]" />
+
+			<div className="relative mx-auto w-full max-w-7xl">
+				<div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+					<div className="space-y-6">
+						<p className="font-mono text-xs uppercase tracking-[0.6em] text-aperture-yellow">
+							Terminal // Experience
+						</p>
+						<div className="space-y-3">
+							<p className="text-sm font-mono uppercase tracking-[0.35em] text-aperture-yellow">
+								The path i&apos;m building
+							</p>
+							<h1
+								className="text-5xl font-black leading-[1.05] text-aperture-yellow sm:text-6xl"
+								style={{ fontFamily: "DIN, Helvetica, Arial, sans-serif" }}
+							>
+								Experience,
+								<br />
+								learning &amp; growth
+							</h1>
+						</div>
+						<p className="text-sm leading-7 text-zinc-300 sm:text-base">
+							A living log of the systems, interfaces, and research I am
+							assembling. Each experiment carries its own telemetry and
+							establishes the next waypoint.
+						</p>
+
+						<div className="rounded-2xl border border-aperture-yellow/20 bg-[#0b0b08]/80 p-7 shadow-[0_18px_40px_rgba(0,0,0,0.45)]">
+							<div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-[0.4em] text-aperture-yellow">
+								<span>Active terminal</span>
+								<span>ONLINE</span>
+							</div>
+							<div className="mt-4 space-y-2 text-xs text-zinc-200">
+								<div className="flex items-center gap-3">
+									<span className="h-[1px] w-6 bg-aperture-yellow/60" />
+									<span className="font-mono tracking-[0.2em]">
+										Calibrating experience stack
+									</span>
+								</div>
+								<div className="flex items-center gap-3">
+									<span className="h-[1px] w-6 bg-aperture-yellow/60" />
+									<span className="font-mono tracking-[0.2em]">
+										Scanning narrative checkpoints
+									</span>
+								</div>
+								<div className="flex items-center gap-3">
+									<span className="h-[1px] w-6 bg-aperture-yellow/60" />
+									<span className="font-mono tracking-[0.2em]">
+										Verifying system readiness
+									</span>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div className="space-y-6">
+						<div className="flex items-center justify-between">
+							<p className="font-mono text-xs uppercase tracking-[0.45em] text-aperture-yellow">
+								Visual carousel
+							</p>
+							<span className="text-[10px] font-mono uppercase tracking-[0.35em] text-zinc-500">
+								Looping
+							</span>
+						</div>
+						<AutoCarousel />
+					</div>
+				</div>
+
+				<div className="mt-12 flex flex-wrap gap-4 border-t border-white/10 pt-6">
+					{certifications.map((badge) => (
+						<div
+							key={badge.id}
+							className="group relative rounded-full border border-aperture-yellow/40 bg-aperture-yellow/10 px-4 py-2 text-[10px] font-mono uppercase tracking-[0.35em] text-aperture-yellow transition hover:bg-aperture-yellow hover:text-black"
+						>
+							{badge.label}
+							<div className="pointer-events-none absolute -top-12 left-1/2 w-max -translate-x-1/2 rounded-md border border-white/10 bg-black/80 px-3 py-1 text-[9px] font-mono uppercase tracking-[0.3em] text-zinc-200 opacity-0 transition group-hover:opacity-100">
+								{badge.meta}
+							</div>
+						</div>
+					))}
+				</div>
+			</div>
+		</section>
+	);
+}

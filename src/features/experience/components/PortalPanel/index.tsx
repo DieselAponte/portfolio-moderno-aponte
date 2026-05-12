@@ -15,10 +15,14 @@ interface PortalPanelProps {
 const joinClassNames = (...classes: Array<string | undefined>) =>
   classes.filter(Boolean).join(" ");
 
+const BARCODE_HEIGHT = 28;
+const BARCODE_WIDTH = 3;
+const BARCODE_COUNT = 36;
+
 const createBarcode = () =>
-  Array.from({ length: 34 }).map((_, index) => ({
-    width: index % 3 === 0 ? 3 : 2,
-    height: 18 + ((index * 7) % 20),
+  Array.from({ length: BARCODE_COUNT }).map(() => ({
+    width: BARCODE_WIDTH,
+    height: BARCODE_HEIGHT,
   }));
 
 const renderPictogram = (index: number) => {
@@ -176,7 +180,7 @@ export default function PortalPanel({
 
       <div className="absolute top-16 left-1/2 -translate-x-1/2">
         <motion.h1
-          className="text-[12.5rem] font-black leading-none tracking-[-10px] text-black"
+          className="text-[12rem] font-black leading-none tracking-[-8px] text-black"
           style={{ fontFamily: "DIN, Helvetica, Arial, sans-serif" }}
           animate={numberControls}
         >
@@ -184,11 +188,13 @@ export default function PortalPanel({
         </motion.h1>
       </div>
 
-      <div className="absolute top-[356px] left-6 right-6">
+      <div className="absolute top-[300px] right-0 z-10 h-[2px] w-[74%] bg-black/70" />
+
+      <div className="absolute top-[328px] left-6 z-10 w-[75%]">
         <div className="mb-2 text-sm font-mono font-semibold tracking-wider">
           {id}/{id}
         </div>
-        <div className="flex h-10 items-end gap-[2px]">
+        <div className="flex h-8 items-end justify-between">
           {barcodeBars.map((bar, index) => (
             <div
               key={`${index}-${bar.height}`}
@@ -199,7 +205,7 @@ export default function PortalPanel({
         </div>
       </div>
 
-      <div className="absolute bottom-32 left-6 right-6">
+      <div className="absolute bottom-20 left-6 right-6 z-20">
         <div className="grid grid-cols-6 gap-2">
           {pictograms.map((index) => (
             <div
