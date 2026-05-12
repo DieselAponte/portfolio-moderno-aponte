@@ -23,11 +23,17 @@ portfolio-moderno-aponte/
 ├── public/                             # Archivos estáticos accesibles públicamente
 │   ├── file.svg                       # Icono de archivo
 │   ├── globe.svg                      # Icono de globo
+│   ├── images/                         # Imágenes públicas
+│   │   └── portal-ending.jpg           # Fondo Aspirations
+│   ├── videos/                         # Videos públicos
+│   │   └── experience-loop.mp4         # Fondo loop para Experience
 │   ├── next.svg                       # Icono de Next.js
 │   ├── vercel.svg                     # Icono de Vercel
 │   ├── window.svg                     # Icono de ventana
 │   └── models/                        # Modelos 3D
 │       └── wheatley-rigged.glb        # Modelo 3D (Wheatley)
+│
+├── src/                                # Código fuente principal
 │
 └── node_modules/                       # Dependencias instaladas (ignorar)
 ```
@@ -41,45 +47,97 @@ portfolio-moderno-aponte/
 ```
 src/
 ├── app/                                # Directorio de aplicación Next.js (App Router)
+│   ├── blog/                           # Ruta /blog
+│   │   └── page.tsx                    # Página de blog
+│   ├── book-a-call/                    # Ruta /book-a-call
+│   │   └── page.tsx                    # Página de contacto directo
+│   ├── experience/                     # Ruta /experience
+│   │   └── page.tsx                    # Página de Experience
 │   ├── favicon.ico                    # Icono del sitio
 │   ├── globals.css                    # Estilos globales
+│   ├── guestbook/                      # Ruta /guestbook
+│   │   └── page.tsx                    # Página de guestbook
 │   ├── layout.tsx                     # Componente de diseño raíz
 │   └── page.tsx                       # Página de inicio
+│   └── projects/                       # Ruta /projects
+│       └── page.tsx                    # Página de proyectos
 │
 ├── assets/                             # Carpeta para recursos estáticos (vacía - en expansión)
 │
-├── components/                         # Componentes reutilizables globales (vacía - en expansión)
+├── components/                         # Componentes reutilizables globales
+│   └── navigation/                     # Navegación global
+│       └── CentralNavBar.tsx           # Nav-bar central
 │
 ├── features/                           # Módulos de características organizados por feature
 │   ├── blog/                          # Módulo: Blog
-│   │   ├── components/                # Componentes específicos de blog (vacío)
-│   │   ├── hooks/                     # Hooks personalizados de blog (vacío)
-│   │   ├── services/                  # Servicios y lógica de negocio (vacío)
-│   │   └── types/                     # Tipos TypeScript de blog (vacío)
+│   │   ├── BlogContainer.tsx          # Contenedor principal de Blog
+│   │   ├── components/                # Componentes específicos de blog (vacía - en expansión)
+│   │   ├── hooks/                     # Hooks personalizados de blog (vacía - en expansión)
+│   │   ├── services/                  # Servicios y lógica de negocio (vacía - en expansión)
+│   │   └── types/                     # Tipos TypeScript de blog (vacía - en expansión)
 │   │
 │   ├── experience/                    # Módulo: Experiencia
-│   │   ├── components/                # Componentes específicos de experiencia (vacío)
-│   │   ├── hooks/                     # Hooks personalizados de experiencia (vacío)
-│   │   ├── services/                  # Servicios y lógica de negocio (vacío)
-│   │   └── types/                     # Tipos TypeScript de experiencia (vacío)
+│   │   ├── ExperienceContainer.tsx    # Contenedor principal de Experience
+│   │   ├── components/                # Componentes específicos de experiencia
+│   │   │   ├── Aspirations/           # Sección final Aspirations
+│   │   │   │   └── index.tsx
+│   │   │   ├── HeroSection/           # Hero de Experience (pendiente)
+│   │   │   │   └── index.tsx
+│   │   │   ├── IBMPCMonitor/          # Wrapper CRT
+│   │   │   │   └── index.tsx
+│   │   │   ├── PortalPanel/           # Panel diegético Portal
+│   │   │   │   └── index.tsx
+│   │   │   └── Trayectory/            # Narrativa de trayectoria
+│   │   │       ├── College.tsx
+│   │   │       ├── CurrentlyWorkingOn.tsx
+│   │   │       └── Experience.tsx
+│   │   ├── hooks/                     # Hooks personalizados de experiencia
+│   │   │   ├── useCustomTypewriter.ts # Typewriter personalizado
+│   │   │   ├── useScrollSpy.ts        # Hook de scroll (pendiente)
+│   │   │   └── useVideoControl.ts     # Hook de video (pendiente)
+│   │   ├── services/                  # Servicios y lógica de negocio
+│   │   │   └── experience.service.ts
+│   │   └── types/                     # Tipos TypeScript de experiencia
+│   │       └── index.ts
 │   │
 │   ├── guestbook/                     # Módulo: Libro de Visitas
-│   │   ├── components/                # Componentes específicos de guestbook (vacío)
-│   │   ├── hooks/                     # Hooks personalizados de guestbook (vacío)
-│   │   ├── services/                  # Servicios y lógica de negocio (vacío)
-│   │   └── types/                     # Tipos TypeScript de guestbook (vacío)
+│   │   ├── GuestbookContainer.tsx     # Contenedor principal de Guestbook
+│   │   ├── components/                # Componentes específicos de guestbook (vacía - en expansión)
+│   │   ├── hooks/                     # Hooks personalizados de guestbook (vacía - en expansión)
+│   │   ├── services/                  # Servicios y lógica de negocio (vacía - en expansión)
+│   │   └── types/                     # Tipos TypeScript de guestbook (vacía - en expansión)
 │   │
 │   ├── home/                          # Módulo: Inicio
-│   │   ├── components/                # Componentes específicos de inicio (vacío)
-│   │   ├── hooks/                     # Hooks personalizados de inicio (vacío)
-│   │   ├── services/                  # Servicios y lógica de negocio (vacío)
-│   │   └── types/                     # Tipos TypeScript de inicio (vacío)
+│   │   ├── components/                # Componentes específicos de inicio
+│   │   │   ├── AboutMe/
+│   │   │   │   └── index.tsx
+│   │   │   ├── CasesOfStudy/
+│   │   │   │   └── index.tsx
+│   │   │   ├── ContactMe/
+│   │   │   │   └── index.tsx
+│   │   │   ├── Footer/
+│   │   │   │   └── index.tsx
+│   │   │   ├── HeroSection/
+│   │   │   │   ├── index.tsx
+│   │   │   │   └── WheatleyModel.tsx
+│   │   │   ├── HomeContainer.tsx
+│   │   │   └── WhatIDo/
+│   │   │       └── index.tsx
+│   │   ├── hooks/                     # Hooks personalizados de inicio
+│   │   │   ├── useContactForm.ts
+│   │   │   └── useWheatleyTracking.ts
+│   │   ├── index.ts                   # Export principal de Home
+│   │   ├── services/                  # Servicios y lógica de negocio
+│   │   │   └── contact.service.ts
+│   │   └── types/                     # Tipos TypeScript de inicio
+│   │       └── index.ts
 │   │
 │   └── projects/                      # Módulo: Proyectos
-│       ├── components/                # Componentes específicos de proyectos (vacío)
-│       ├── hooks/                     # Hooks personalizados de proyectos (vacío)
-│       ├── services/                  # Servicios y lógica de negocio (vacío)
-│       └── types/                     # Tipos TypeScript de proyectos (vacío)
+│       ├── ProjectsContainer.tsx      # Contenedor principal de Projects
+│       ├── components/                # Componentes específicos de proyectos (vacía - en expansión)
+│       ├── hooks/                     # Hooks personalizados de proyectos (vacía - en expansión)
+│       ├── services/                  # Servicios y lógica de negocio (vacía - en expansión)
+│       └── types/                     # Tipos TypeScript de proyectos (vacía - en expansión)
 │
 ├── hooks/                              # Hooks personalizados globales (vacía - en expansión)
 │
@@ -92,8 +150,8 @@ src/
 
 ### Resumen de Estadísticas
 
-- **Total de directorios en src/**: 34 directorios
-- **Archivos en src/**: 4 archivos (todos en `src/app/`)
+- **Total de directorios en src/**: 51 directorios
+- **Archivos en src/**: 55 archivos
 - **Módulos de features**: 5 (blog, experience, guestbook, home, projects)
 - **Estructura por feature**: 4 subcarpetas estándar (components, hooks, services, types)
 

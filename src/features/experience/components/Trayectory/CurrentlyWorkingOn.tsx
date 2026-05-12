@@ -1,0 +1,144 @@
+import IBMPCMonitor from "../IBMPCMonitor";
+import PortalPanel from "../PortalPanel";
+import type { TechBubble, TrajectorySectionData } from "../../types";
+
+const workingData: TrajectorySectionData = {
+	id: "02",
+	title: "Active Protocol",
+	subtitle: "Aperture Research Division",
+	status: "IN PROGRESS",
+	eyebrow: "Division // Current Work",
+	heading: "Building resilient digital systems",
+	summary:
+		"Designing responsive interfaces and scalable product systems with a cinematic Aperture aesthetic. The objective is a tightly engineered portfolio that still feels human and alive.",
+	highlights: [
+		"Design Systems",
+		"R3F Scenes",
+		"Performance Budgeting",
+		"Interaction Design",
+	],
+};
+
+const techBubbles: TechBubble[] = [
+	{
+		id: "01",
+		label: "Next.js",
+		top: "8%",
+		right: "-6%",
+		delay: "0s",
+		duration: "6s",
+	},
+	{
+		id: "02",
+		label: "Framer",
+		top: "28%",
+		right: "-12%",
+		delay: "0.8s",
+		duration: "5.4s",
+	},
+	{
+		id: "03",
+		label: "R3F",
+		top: "52%",
+		right: "-8%",
+		delay: "1.4s",
+		duration: "6.6s",
+	},
+	{
+		id: "04",
+		label: "Supabase",
+		top: "70%",
+		right: "-14%",
+		delay: "0.3s",
+		duration: "5.8s",
+	},
+];
+
+const currentFocus = [
+	"Interface orchestration",
+	"3D scene optimization",
+	"Narrative UI flows",
+	"Low-latency deployments",
+];
+
+export default function CurrentlyWorkingOn() {
+	return (
+		<section className="grid gap-10 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
+			<div className="self-start lg:sticky lg:top-24">
+				<PortalPanel
+					id={workingData.id}
+					title={workingData.title}
+					subtitle={workingData.subtitle}
+					status={workingData.status}
+				/>
+			</div>
+
+			<div className="space-y-8">
+				<div className="space-y-4">
+					<p className="font-mono text-xs uppercase tracking-[0.45em] text-aperture-blue">
+						{workingData.eyebrow}
+					</p>
+					<h3
+						className="text-3xl font-black text-white sm:text-4xl"
+						style={{ fontFamily: "DIN, Helvetica, Arial, sans-serif" }}
+					>
+						{workingData.heading}
+					</h3>
+					<p className="text-sm leading-7 text-zinc-300">
+						{workingData.summary}
+					</p>
+					<div className="flex flex-wrap gap-2">
+						{workingData.highlights.map((highlight) => (
+							<span
+								key={highlight}
+								className="rounded-full border border-aperture-gray/70 px-3 py-1 text-[10px] font-mono uppercase tracking-[0.2em] text-aperture-yellow"
+							>
+								{highlight}
+							</span>
+						))}
+					</div>
+				</div>
+
+				<div className="relative">
+					<IBMPCMonitor screenClassName="h-[280px]">
+						<div className="relative h-[280px] w-full overflow-hidden rounded-[8px] bg-[#0b0b10]">
+							<div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(242,201,76,0.12),transparent_70%)]" />
+							<div className="absolute inset-0 border border-white/10" />
+							<div className="relative z-10 h-full p-6 text-[#f0f0f0]">
+								<p className="font-mono text-[11px] uppercase tracking-[0.35em] text-aperture-yellow">
+									Live console
+								</p>
+								<div className="mt-5 space-y-3 text-xs text-zinc-200">
+									{currentFocus.map((line, index) => (
+										<div key={`${line}-${index}`} className="flex items-center gap-3">
+											<span className="h-[1px] w-5 bg-aperture-yellow/50" />
+											<span className="font-mono tracking-[0.2em]">{line}</span>
+										</div>
+									))}
+								</div>
+							</div>
+						</div>
+					</IBMPCMonitor>
+
+					<div className="pointer-events-none absolute inset-0 hidden lg:block">
+						{techBubbles.map((bubble) => (
+							<div
+								key={bubble.id}
+								className="absolute rounded-full border border-aperture-yellow/70 bg-aperture-yellow/20 px-3 py-1 text-[10px] font-mono uppercase tracking-[0.2em] text-aperture-yellow shadow-[0_0_20px_rgba(242,201,76,0.25)]"
+								style={{
+									top: bubble.top,
+									right: bubble.right,
+									animation: `bubbleFloat ${bubble.duration} ease-in-out infinite`,
+									animationDelay: bubble.delay,
+								}}
+							>
+								{bubble.label}
+							</div>
+						))}
+					</div>
+				</div>
+			</div>
+
+		</section>
+	);
+}
