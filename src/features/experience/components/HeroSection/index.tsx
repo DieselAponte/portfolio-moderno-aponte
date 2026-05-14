@@ -47,13 +47,13 @@ const AutoCarousel = () => {
 	const trackItems = [...carouselItems, ...carouselItems];
 
 	return (
-		<div className="relative overflow-hidden rounded-2xl border border-aperture-yellow/20 bg-[#10100b] p-5 shadow-[0_24px_60px_rgba(0,0,0,0.55)]">
+		<div className="relative w-full max-w-full overflow-hidden rounded-2xl border border-aperture-yellow/20 bg-[#10100b] p-4 shadow-[0_24px_60px_rgba(0,0,0,0.55)] sm:p-5">
 			<div className="absolute inset-0 pointer-events-none opacity-[0.12] bg-[linear-gradient(to_bottom,transparent_0%,transparent_50%,black_51%,transparent_52%)] bg-[length:100%_4px]" />
 			<div className="absolute inset-0 pointer-events-none opacity-[0.08] bg-[radial-gradient(circle_at_top,rgba(242,201,76,0.2),transparent_60%)]" />
 			<div className="absolute inset-0 pointer-events-none opacity-[0.05] mix-blend-screen bg-[url('https://www.transparenttextures.com/patterns/asfalt-dark.png')]" />
 
 			<motion.div
-				className="flex gap-6"
+				className="flex gap-4 sm:gap-6"
 				animate={{ x: ["0%", "-50%"] }}
 				transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
 				style={{ width: "max-content" }}
@@ -61,7 +61,7 @@ const AutoCarousel = () => {
 				{trackItems.map((item, index) => (
 					<div
 						key={`${item.id}-${index}`}
-						className="relative h-[320px] w-[240px] overflow-hidden rounded-xl border border-white/10 bg-black"
+						className="relative h-[240px] w-[180px] overflow-hidden rounded-xl border border-white/10 bg-black sm:h-[280px] sm:w-[210px] lg:h-[320px] lg:w-[240px]"
 					>
 						{item.image ? (
 							<img
@@ -93,22 +93,22 @@ const AutoCarousel = () => {
 
 export default function HeroSection() {
 	return (
-		<section className="relative min-h-screen w-full overflow-hidden px-6 pb-24 pt-36">
+		<section className="relative min-h-screen w-full overflow-hidden px-6 pb-24 pt-28 sm:pt-32 lg:pt-36">
 			<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(242,201,76,0.12),transparent_55%)]" />
 			<div className="pointer-events-none absolute inset-0 opacity-[0.06] bg-[linear-gradient(to_bottom,transparent_0%,transparent_50%,black_51%,transparent_52%)] bg-[length:100%_4px]" />
 
 			<div className="relative mx-auto w-full max-w-7xl">
-				<div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-					<div className="space-y-6">
-						<p className="font-mono text-xs uppercase tracking-[0.6em] text-aperture-yellow">
+				<div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+					<div className="min-w-0 space-y-6">
+						<p className="font-mono text-xs uppercase tracking-[0.35em] text-aperture-yellow sm:tracking-[0.6em]">
 							Terminal // Experience
 						</p>
 						<div className="space-y-3">
-							<p className="text-sm font-mono uppercase tracking-[0.35em] text-aperture-yellow">
+							<p className="text-xs font-mono uppercase tracking-[0.2em] text-aperture-yellow sm:text-sm sm:tracking-[0.35em]">
 								The path i&apos;m building
 							</p>
 							<h1
-								className="text-5xl font-black leading-[1.05] text-aperture-yellow sm:text-6xl"
+								className="break-words text-4xl font-black leading-[1.05] text-aperture-yellow sm:text-5xl lg:text-6xl xl:text-7xl"
 								style={{ fontFamily: "DIN, Helvetica, Arial, sans-serif" }}
 							>
 								Experience,
@@ -116,13 +116,13 @@ export default function HeroSection() {
 								learning &amp; growth
 							</h1>
 						</div>
-						<p className="text-sm leading-7 text-zinc-300 sm:text-base">
+						<p className="max-w-2xl text-sm leading-7 text-zinc-300 sm:text-base">
 							A living log of the systems, interfaces, and research I am
 							assembling. Each experiment carries its own telemetry and
 							establishes the next waypoint.
 						</p>
 
-						<div className="rounded-2xl border border-aperture-yellow/20 bg-[#0b0b08]/80 p-7 shadow-[0_18px_40px_rgba(0,0,0,0.45)]">
+						<div className="rounded-2xl border border-aperture-yellow/20 bg-[#0b0b08]/80 p-5 shadow-[0_18px_40px_rgba(0,0,0,0.45)] sm:p-7">
 							<div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-[0.4em] text-aperture-yellow">
 								<span>Active terminal</span>
 								<span>ONLINE</span>
@@ -150,7 +150,7 @@ export default function HeroSection() {
 						</div>
 					</div>
 
-					<div className="space-y-6">
+					<div className="min-w-0 space-y-6">
 						<div className="flex items-center justify-between">
 							<p className="font-mono text-xs uppercase tracking-[0.45em] text-aperture-yellow">
 								Visual carousel
@@ -159,7 +159,9 @@ export default function HeroSection() {
 								Looping
 							</span>
 						</div>
-						<AutoCarousel />
+						<div className="w-full min-w-0 overflow-hidden">
+							<AutoCarousel />
+						</div>
 					</div>
 				</div>
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useCustomTypewriter } from "../../hooks/useCustomTypewriter";
 
 const primaryText =
@@ -14,12 +15,38 @@ interface AspirationsProps {
 export default function Aspirations({
 	backgroundImage = "/images/portal-ending.jpg",
 }: AspirationsProps) {
-	const primary = useCustomTypewriter({ text: primaryText, speed: 28 });
+	const [cycle, setCycle] = useState(0);
+	const loopTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+	const handleSecondaryComplete = useCallback(() => {
+		if (loopTimeoutRef.current) {
+			clearTimeout(loopTimeoutRef.current);
+		}
+		loopTimeoutRef.current = setTimeout(() => {
+			setCycle((prev) => prev + 1);
+		}, 1400);
+	}, []);
+
+	useEffect(() => {
+		return () => {
+			if (loopTimeoutRef.current) {
+				clearTimeout(loopTimeoutRef.current);
+			}
+		};
+	}, []);
+
+	const primary = useCustomTypewriter({
+		text: primaryText,
+		speed: 28,
+		resetSignal: cycle,
+	});
 	const secondary = useCustomTypewriter({
 		text: secondaryText,
 		speed: 56,
 		startDelay: 1000,
 		enabled: primary.isComplete,
+		resetSignal: cycle,
+		onComplete: handleSecondaryComplete,
 	});
 
 	const showPrimaryCursor = !primary.isComplete;

@@ -1,8 +1,8 @@
-import Aspirations from "./components/Aspirations";
-import HeroSection from "./components/HeroSection";
-import College from "./components/Trayectory/College";
-import CurrentlyWorkingOn from "./components/Trayectory/CurrentlyWorkingOn";
-import Experience from "./components/Trayectory/Experience";
+import Aspirations from "./Aspirations";
+import HeroSection from "./HeroSection";
+import College from "./Trayectory/College";
+import CurrentlyWorkingOn from "./Trayectory/CurrentlyWorkingOn";
+import Experience from "./Trayectory/Experience";
 
 export default function ExperienceContainer() {
   return (

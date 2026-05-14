@@ -6,6 +6,7 @@ interface TypewriterOptions {
   startDelay?: number;
   enabled?: boolean;
   onComplete?: () => void;
+  resetSignal?: number;
 }
 
 interface TypewriterState {
@@ -20,6 +21,7 @@ export const useCustomTypewriter = ({
   startDelay = 0,
   enabled = true,
   onComplete,
+  resetSignal,
 }: TypewriterOptions): TypewriterState => {
   const [typedText, setTypedText] = useState("");
   const [isComplete, setIsComplete] = useState(false);
@@ -64,7 +66,7 @@ export const useCustomTypewriter = ({
       if (delayId) clearTimeout(delayId);
       if (intervalId) clearInterval(intervalId);
     };
-  }, [text, speed, startDelay, enabled, onComplete]);
+  }, [text, speed, startDelay, enabled, onComplete, resetSignal]);
 
   return { typedText, isComplete, hasStarted };
 };

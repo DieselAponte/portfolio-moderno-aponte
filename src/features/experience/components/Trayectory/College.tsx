@@ -29,8 +29,8 @@ const transcriptLines = [
 
 export default function College() {
 	return (
-		<section className="grid gap-10 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
-			<div className="self-start lg:sticky lg:top-24">
+		<section className="grid gap-10 md:grid-cols-[minmax(0,240px)_minmax(0,1fr)] lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
+			<div className="self-start hidden md:block md:sticky md:top-24">
 				<PortalPanel
 					id={collegeData.id}
 					title={collegeData.title}
@@ -42,6 +42,7 @@ export default function College() {
 			<div className="space-y-8">
 				<div className="space-y-4">
 					<p className="font-mono text-xs uppercase tracking-[0.45em] text-aperture-blue">
+						<span className="md:hidden">Level 01 // </span>
 						{collegeData.eyebrow}
 					</p>
 					<h3

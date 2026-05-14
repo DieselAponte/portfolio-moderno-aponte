@@ -63,8 +63,8 @@ const currentFocus = [
 
 export default function CurrentlyWorkingOn() {
 	return (
-		<section className="grid gap-10 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
-			<div className="self-start lg:sticky lg:top-24">
+		<section className="grid gap-10 md:grid-cols-[minmax(0,240px)_minmax(0,1fr)] lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
+			<div className="self-start hidden md:block md:sticky md:top-24">
 				<PortalPanel
 					id={workingData.id}
 					title={workingData.title}
@@ -76,6 +76,7 @@ export default function CurrentlyWorkingOn() {
 			<div className="space-y-8">
 				<div className="space-y-4">
 					<p className="font-mono text-xs uppercase tracking-[0.45em] text-aperture-blue">
+						<span className="md:hidden">Level 02 // </span>
 						{workingData.eyebrow}
 					</p>
 					<h3
@@ -120,7 +121,7 @@ export default function CurrentlyWorkingOn() {
 						</div>
 					</IBMPCMonitor>
 
-					<div className="pointer-events-none absolute inset-0 hidden lg:block">
+					<div className="pointer-events-none absolute inset-0 hidden md:block">
 						{techBubbles.map((bubble) => (
 							<div
 								key={bubble.id}

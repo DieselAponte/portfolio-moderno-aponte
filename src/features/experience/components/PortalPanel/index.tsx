@@ -149,7 +149,7 @@ export default function PortalPanel({
   return (
     <motion.div
       className={joinClassNames(
-        "relative group h-[620px] w-[320px] overflow-hidden rounded-[6px] border border-black/20 bg-[#f0f0f0] text-black shadow-[0_0_22px_rgba(0,0,0,0.25)]",
+        "relative group h-[520px] w-[260px] overflow-hidden rounded-[6px] border border-black/20 bg-[#f0f0f0] text-black shadow-[0_0_22px_rgba(0,0,0,0.25)] md:h-[560px] md:w-[280px] lg:h-[620px] lg:w-[320px]",
         className,
       )}
       animate={panelControls}
