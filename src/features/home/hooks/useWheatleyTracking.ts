@@ -1,5 +1,5 @@
 import { useFrame } from "@react-three/fiber";
-import { useRef, type RefObject } from "react";
+import { useEffect, useRef, type RefObject } from "react";
 import { MathUtils, type Object3D } from "three";
 
 type WheatleyTrackingOptions = {
@@ -11,9 +11,12 @@ type WheatleyTrackingOptions = {
 	bodyLerp?: number;
 	bodyPitch?: number;
 	bodyYaw?: number;
+	eyeYaw?: number;
+	eyePitch?: number;
 	blinkInterval?: number;
 	blinkDuration?: number;
 	blinkStrength?: number;
+	resetKey?: string | number | boolean;
 };
 
 export const useWheatleyTracking = ({
@@ -25,14 +28,22 @@ export const useWheatleyTracking = ({
 	bodyLerp = 0.08,
 	bodyPitch = 0.2,
 	bodyYaw = 0.18,
+	eyeYaw = 0.6,
+	eyePitch = 0.45,
 	blinkInterval = 3,
 	blinkDuration = 0.18,
 	blinkStrength = 0.35,
+	resetKey,
 }: WheatleyTrackingOptions) => {
 	const baseRotation = useRef<{ x: number; y: number; z: number } | null>(
 		null,
 	);
 	const lastBody = useRef<Object3D | null>(null);
+
+	useEffect(() => {
+		baseRotation.current = null;
+		lastBody.current = null;
+	}, [resetKey]);
 
 	useFrame(({ pointer, clock }) => {
 		const targetBody = bodyRef?.current ?? body ?? null;
@@ -67,9 +78,9 @@ export const useWheatleyTracking = ({
 		}
 
 		if (eyeAim) {
-			const targetY = pointer.x * 0.6;
+			const targetY = pointer.x * eyeYaw;
 			const verticalSign = pointer.x >= 0 ? -1 : 1;
-			const targetX = -pointer.y * 0.45 * verticalSign;
+			const targetX = -pointer.y * eyePitch * verticalSign;
 			eyeAim.rotation.y = MathUtils.lerp(eyeAim.rotation.y, targetY, lerp);
 			eyeAim.rotation.x = MathUtils.lerp(eyeAim.rotation.x, targetX, lerp);
 		}

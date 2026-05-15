@@ -18,6 +18,20 @@ export const WheatleyModel = () => {
     [isCompact],
   );
   const modelScale = useMemo(() => (isCompact ? 0.085 : 0.1), [isCompact]);
+  const modelRotation = useMemo<[number, number, number]>(
+    () => (isCompact ? [0, -Math.PI / 1.8, 0] : [0, -Math.PI / 1.4, 0]),
+    [isCompact],
+  );
+  const trackingOptions = useMemo(
+    () => ({
+      bodyLerp: isCompact ? 0.08 : 0.06,
+      bodyPitch: isCompact ? 0.18 : 0.12,
+      bodyYaw: isCompact ? 0.2 : 0.14,
+      eyeYaw: isCompact ? 0.45 : 0.6,
+      eyePitch: isCompact ? 0.32 : 0.45,
+    }),
+    [isCompact],
+  );
 
   const groupRef = useRef<Group>(null);
 
@@ -35,12 +49,11 @@ export const WheatleyModel = () => {
     bodyRef: groupRef,
     eyeAim,
     eyelid,
+    resetKey: isCompact,
 
     lerp: 0.1,
 
-    bodyLerp: 0.06,
-    bodyPitch: 0.12,
-    bodyYaw: 0.14,
+    ...trackingOptions,
 
     blinkInterval: 3,
     blinkDuration: 0.18,
@@ -50,7 +63,7 @@ export const WheatleyModel = () => {
     <group
       ref={groupRef}
       position={modelPosition}
-      rotation={[0, -Math.PI / 1.4, 0]}
+      rotation={modelRotation}
       scale={modelScale}
     >
       <Center>
