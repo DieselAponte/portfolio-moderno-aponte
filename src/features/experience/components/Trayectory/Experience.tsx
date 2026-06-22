@@ -6,58 +6,23 @@ import IBMPCMonitor from "../IBMPCMonitor";
 import PortalPanel from "../PortalPanel";
 import type { ExperienceSlide, TrajectorySectionData } from "../../types";
 
-const experienceData: TrajectorySectionData = {
-	id: "03",
-	title: "Operational Log",
-	subtitle: "Aperture Systems",
-	status: "ACTIVE",
-	eyebrow: "Division // Experience",
-	heading: "Field-tested engineering output",
-	summary:
-		"A running log of practical deployments and live systems. Each release focused on clarity, speed, and a consistent narrative interface.",
-	highlights: ["Front-end Architecture", "Animation Systems", "Shipping UX"],
-};
-
-const slides: ExperienceSlide[] = [
-	{
-		id: "01",
-		role: "Creative Front-end Engineer",
-		organization: "Aperture Lab UI",
-		timeframe: "2024 - Present",
-		summary:
-			"Directed cinematic web interfaces with custom component systems and rigorous performance budgets.",
-		tags: ["Next.js", "Framer", "TypeScript"],
-	},
-	{
-		id: "02",
-		role: "Product Interface Lead",
-		organization: "Experimental Systems",
-		timeframe: "2023 - 2024",
-		summary:
-			"Built modular design frameworks and accelerated delivery pipelines for high-trust dashboards.",
-		tags: ["Design Systems", "R3F", "Storybook"],
-	},
-	{
-		id: "03",
-		role: "Full-stack Engineer",
-		organization: "Autonomous Labs",
-		timeframe: "2022 - 2023",
-		summary:
-			"Shipped data-intensive applications with real-time telemetry and hardened backends.",
-		tags: ["Supabase", "Postgres", "Edge"],
-	},
-];
-
-export default function Experience() {
+export default function Experience({
+	data,
+	slides = [],
+}: {
+	data: TrajectorySectionData;
+	slides: ExperienceSlide[];
+}) {
 	const [activeIndex, setActiveIndex] = useState(0);
 
 	useEffect(() => {
+		if (slides.length === 0) return;
 		const interval = setInterval(() => {
 			setActiveIndex((prev) => (prev + 1) % slides.length);
 		}, 4200);
 
 		return () => clearInterval(interval);
-	}, []);
+	}, [slides.length]);
 
 	const activeSlide = slides[activeIndex];
 
@@ -65,10 +30,10 @@ export default function Experience() {
 		<section className="grid gap-10 md:grid-cols-[minmax(0,240px)_minmax(0,1fr)] lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
 			<div className="self-start hidden md:block md:sticky md:top-24">
 				<PortalPanel
-					id={experienceData.id}
-					title={experienceData.title}
-					subtitle={experienceData.subtitle}
-					status={experienceData.status}
+					id={data.id}
+					title={data.title}
+					subtitle={data.subtitle}
+					status={data.status}
 				/>
 			</div>
 
@@ -76,19 +41,19 @@ export default function Experience() {
 				<div className="space-y-4">
 					<p className="font-mono text-xs uppercase tracking-[0.45em] text-aperture-blue">
 						<span className="md:hidden">Level 03 // </span>
-						{experienceData.eyebrow}
+						{data.eyebrow}
 					</p>
 					<h3
 						className="text-3xl font-black text-white sm:text-4xl"
 						style={{ fontFamily: "DIN, Helvetica, Arial, sans-serif" }}
 					>
-						{experienceData.heading}
+						{data.heading}
 					</h3>
 					<p className="text-sm leading-7 text-zinc-300">
-						{experienceData.summary}
+						{data.summary}
 					</p>
 					<div className="flex flex-wrap gap-2">
-						{experienceData.highlights.map((highlight) => (
+						{data.highlights.map((highlight) => (
 							<span
 								key={highlight}
 								className="rounded-full border border-aperture-gray/70 px-3 py-1 text-[10px] font-mono uppercase tracking-[0.2em] text-aperture-yellow"
@@ -105,40 +70,42 @@ export default function Experience() {
 						<div className="absolute inset-0 border border-white/10" />
 
 						<AnimatePresence mode="wait">
-							<motion.div
-								key={activeSlide.id}
-								className="relative z-10 h-full p-6 text-[#f0f0f0]"
-								initial={{ opacity: 0, y: 12 }}
-								animate={{ opacity: 1, y: 0 }}
-								exit={{ opacity: 0, y: -12 }}
-								transition={{ duration: 0.5 }}
-							>
-								<div className="flex items-center justify-between text-[11px] font-mono uppercase tracking-[0.35em] text-aperture-blue">
-									<span>Log {activeSlide.id}</span>
-									<span>{activeSlide.timeframe}</span>
-								</div>
-								<div className="mt-4 space-y-2">
-									<h4 className="text-lg font-semibold text-white">
-										{activeSlide.role}
-									</h4>
-									<p className="text-xs uppercase tracking-[0.3em] text-aperture-yellow">
-										{activeSlide.organization}
-									</p>
-									<p className="text-sm leading-6 text-zinc-200">
-										{activeSlide.summary}
-									</p>
-								</div>
-								<div className="mt-6 flex flex-wrap gap-2">
-									{activeSlide.tags.map((tag) => (
-										<span
-											key={tag}
-											className="rounded-full border border-aperture-blue/60 px-3 py-1 text-[10px] font-mono uppercase tracking-[0.2em] text-aperture-blue"
-										>
-											{tag}
-										</span>
-									))}
-								</div>
-							</motion.div>
+							{activeSlide && (
+								<motion.div
+									key={activeSlide.id}
+									className="relative z-10 h-full p-6 text-[#f0f0f0]"
+									initial={{ opacity: 0, y: 12 }}
+									animate={{ opacity: 1, y: 0 }}
+									exit={{ opacity: 0, y: -12 }}
+									transition={{ duration: 0.5 }}
+								>
+									<div className="flex items-center justify-between text-[11px] font-mono uppercase tracking-[0.35em] text-aperture-blue">
+										<span>Log {activeSlide.id}</span>
+										<span>{activeSlide.timeframe}</span>
+									</div>
+									<div className="mt-4 space-y-2">
+										<h4 className="text-lg font-semibold text-white">
+											{activeSlide.role}
+										</h4>
+										<p className="text-xs uppercase tracking-[0.3em] text-aperture-yellow">
+											{activeSlide.organization}
+										</p>
+										<p className="text-sm leading-6 text-zinc-200">
+											{activeSlide.summary}
+										</p>
+									</div>
+									<div className="mt-6 flex flex-wrap gap-2">
+										{activeSlide.tags.map((tag) => (
+											<span
+												key={tag}
+												className="rounded-full border border-aperture-blue/60 px-3 py-1 text-[10px] font-mono uppercase tracking-[0.2em] text-aperture-blue"
+											>
+												{tag}
+											</span>
+										))}
+									</div>
+								</motion.div>
+							)}
 						</AnimatePresence>
 					</div>
 				</IBMPCMonitor>

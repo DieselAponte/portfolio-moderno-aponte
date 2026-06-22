@@ -1,4 +1,10 @@
+"use server";
+
+import { createClient } from "@supabase/supabase-js";
+import { redis } from "../../../lib/redis";
 import type { BlogArticle, BlogSortOrder } from "../types";
+import { auth } from "../../../lib/auth";
+import { headers } from "next/headers";
 
 export type BlogArticleRecord = {
 	id: string;
@@ -19,13 +25,13 @@ export type BlogQuery = {
 	featuredOnly?: boolean;
 };
 
-export type BlogRepository = {
-	fetchArticles: (query?: BlogQuery) => Promise<BlogArticleRecord[]>;
-};
+const CACHE_KEY_PREFIX = "blog_articles:";
+const CACHE_TTL = 3600; // 1 hour
 
-export type BlogService = {
-	listArticles: (query?: BlogQuery) => Promise<BlogArticle[]>;
-	listFeatured: (limit?: number) => Promise<BlogArticle[]>;
+const getSupabaseClient = () => {
+	const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+	const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+	return createClient(url, key);
 };
 
 const mapRecordToArticle = (record: BlogArticleRecord): BlogArticle => ({
@@ -38,26 +44,93 @@ const mapRecordToArticle = (record: BlogArticleRecord): BlogArticle => ({
 	content: record.content,
 });
 
-export const createBlogService = (repository: BlogRepository): BlogService => ({
-	async listArticles(query) {
-		const records = await repository.fetchArticles(query);
-		return records.map(mapRecordToArticle);
-	},
-	async listFeatured(limit = 3) {
-		const records = await repository.fetchArticles({
-			featuredOnly: true,
-			limit,
-		});
-		return records.map(mapRecordToArticle);
-	},
-});
+export const fetchArticles = async (query?: BlogQuery): Promise<BlogArticle[]> => {
+	const cacheKey = `${CACHE_KEY_PREFIX}${JSON.stringify(query || {})}`;
+	const cached = await redis.get(cacheKey);
 
-export const createSupabaseBlogRepository = (_client: unknown): BlogRepository => {
-	return {
-		async fetchArticles() {
-			throw new Error(
-				"Supabase repository not configured. Provide a client and implementation.",
-			);
-		},
-	};
+	if (cached) {
+		return JSON.parse(cached);
+	}
+
+	const client = getSupabaseClient();
+	let supabaseQuery = client.from("blog_articles").select("*");
+
+	if (query?.featuredOnly) {
+		supabaseQuery = supabaseQuery.eq("is_featured", true);
+	}
+	if (query?.tag && query.tag !== "all") {
+		supabaseQuery = supabaseQuery.contains("tags", [query.tag]);
+	}
+	if (query?.query) {
+		supabaseQuery = supabaseQuery.ilike("title", `%${query.query}%`);
+	}
+
+	if (query?.order === "oldest") {
+		supabaseQuery = supabaseQuery.order("date", { ascending: true });
+	} else if (query?.order === "az") {
+		supabaseQuery = supabaseQuery.order("title", { ascending: true });
+	} else {
+		supabaseQuery = supabaseQuery.order("date", { ascending: false });
+	}
+
+	if (query?.limit) {
+		supabaseQuery = supabaseQuery.limit(query.limit);
+	}
+
+	const { data, error } = await supabaseQuery;
+
+	if (error) {
+		console.error("Error fetching blog articles:", error);
+		return [];
+	}
+
+	const articles = (data as BlogArticleRecord[]).map(mapRecordToArticle);
+
+	// Ensure we only cache if there's data to prevent caching empty error states
+    await redis.setex(cacheKey, CACHE_TTL, JSON.stringify(articles));
+
+	return articles;
+};
+
+const invalidateBlogCache = async () => {
+    const keys = await redis.keys(`${CACHE_KEY_PREFIX}*`);
+    if (keys.length > 0) {
+        await redis.del(...keys);
+    }
+};
+
+const checkAdminAuth = async () => {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session || session.user.role !== "admin") {
+        throw new Error("Unauthorized");
+    }
+};
+
+export const addArticle = async (article: BlogArticleRecord) => {
+    await checkAdminAuth();
+    const client = getSupabaseClient();
+    const { error } = await client.from("blog_articles").insert(article);
+    if (error) throw new Error(error.message);
+    await invalidateBlogCache();
+};
+
+export const updateArticle = async (id: string, updates: Partial<BlogArticleRecord>) => {
+    await checkAdminAuth();
+    const client = getSupabaseClient();
+    const { error } = await client.from("blog_articles").update(updates).eq("id", id);
+    if (error) throw new Error(error.message);
+    await invalidateBlogCache();
+};
+
+export const deleteArticle = async (id: string) => {
+    await checkAdminAuth();
+    const client = getSupabaseClient();
+    const { error } = await client.from("blog_articles").delete().eq("id", id);
+    if (error) throw new Error(error.message);
+    await invalidateBlogCache();
+};
+
+export const getArticleById = async (id: string): Promise<BlogArticle | null> => {
+	const articles = await fetchArticles();
+	return articles.find((a) => a.id === id) ?? null;
 };

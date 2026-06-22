@@ -55,16 +55,28 @@ export const useGuestbook = ({
 	const addNote = useCallback(async (note: GuestbookNoteInsert) => {
 		setIsSubmitting(true);
 		setError(null);
+
+		const optimisticNote: GuestbookNote = {
+			id: `optimistic-${Date.now()}`,
+			...note,
+			email: note.email || null,
+			site_url: note.site_url || null,
+			github_url: note.github_url || null,
+			avatar_url: note.avatar_url || null,
+			user_id: note.user_id || null,
+			created_at: new Date().toISOString(),
+		};
+
+		setNotes((prev) => [optimisticNote, ...prev]);
+
 		try {
 			const created = await getService().insertNote(note);
-			setNotes((prev) => {
-				if (prev.some((item) => item.id === created.id)) {
-					return prev;
-				}
-				return [created, ...prev];
-			});
+			setNotes((prev) =>
+				prev.map((item) => (item.id === optimisticNote.id ? created : item))
+			);
 			return created;
 		} catch (submitError) {
+			setNotes((prev) => prev.filter((item) => item.id !== optimisticNote.id));
 			setError(resolveErrorMessage(submitError));
 			throw submitError;
 		} finally {
@@ -85,15 +97,30 @@ export const useGuestbook = ({
 				});
 			});
 		} catch (subscribeError) {
-			setError(resolveErrorMessage(subscribeError));
+			console.error("Failed to subscribe to guestbook notes", subscribeError);
 		}
 
-		refresh();
+		// Use a local async function instead of calling refresh which updates state synchronously
+		const loadInitialData = async () => {
+			try {
+				const data = await getService().getNotes(limit);
+				setNotes(data);
+			} catch (fetchError) {
+				setError(resolveErrorMessage(fetchError));
+				if (fallbackNotes.length > 0) {
+					setNotes(fallbackNotes);
+				}
+			} finally {
+				setIsLoading(false);
+			}
+		};
+
+		void loadInitialData();
 
 		return () => {
 			unsubscribe();
 		};
-	}, [refresh]);
+	}, [fallbackNotes, limit]);
 
 	return {
 		notes,

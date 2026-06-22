@@ -29,21 +29,26 @@ export const useCustomTypewriter = ({
 
   useEffect(() => {
     if (!enabled) {
-      setTypedText("");
-      setIsComplete(false);
-      setHasStarted(false);
+      setTimeout(() => {
+        setTypedText("");
+        setIsComplete(false);
+        setHasStarted(false);
+      }, 0);
       return;
     }
 
     let isActive = true;
     let intervalId: ReturnType<typeof setInterval> | undefined;
-    let delayId: ReturnType<typeof setTimeout> | undefined;
 
-    setTypedText("");
-    setIsComplete(false);
-    setHasStarted(false);
+    setTimeout(() => {
+      if (isActive) {
+        setTypedText("");
+        setIsComplete(false);
+        setHasStarted(false);
+      }
+    }, 0);
 
-    delayId = setTimeout(() => {
+    const delayId = setTimeout(() => {
       if (!isActive) return;
       setHasStarted(true);
       let index = 0;

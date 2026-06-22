@@ -6,6 +6,7 @@ export type BlogArticle = {
 	thumbnail: string;
 	tags: string[];
 	content: string;
+	is_featured?: boolean;
 };
 
 export type BlogSortOrder = "newest" | "oldest" | "az";

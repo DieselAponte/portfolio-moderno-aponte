@@ -2,23 +2,6 @@ import IBMPCMonitor from "../IBMPCMonitor";
 import PortalPanel from "../PortalPanel";
 import type { TrajectorySectionData } from "../../types";
 
-const collegeData: TrajectorySectionData = {
-	id: "01",
-	title: "Academic Path",
-	subtitle: "Aperture Education Initiative",
-	status: "COMPLETED",
-	eyebrow: "Division // College",
-	heading: "Systems Engineering Core",
-	summary:
-		"A structured foundation in algorithms, data structures, and human-centered systems. The focus stayed on building reliable, scalable architecture with a bias toward real-world implementation.",
-	highlights: [
-		"Algorithmic Thinking",
-		"Software Architecture",
-		"Human Factors",
-		"Systems Research",
-	],
-};
-
 const transcriptLines = [
 	"Boot sequence: completed",
 	"Core systems calibrated",
@@ -27,15 +10,15 @@ const transcriptLines = [
 	"Status: archived",
 ];
 
-export default function College() {
+export default function College({ data }: { data: TrajectorySectionData }) {
 	return (
 		<section className="grid gap-10 md:grid-cols-[minmax(0,240px)_minmax(0,1fr)] lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
 			<div className="self-start hidden md:block md:sticky md:top-24">
 				<PortalPanel
-					id={collegeData.id}
-					title={collegeData.title}
-					subtitle={collegeData.subtitle}
-					status={collegeData.status}
+					id={data.id}
+					title={data.title}
+					subtitle={data.subtitle}
+					status={data.status}
 				/>
 			</div>
 
@@ -43,19 +26,19 @@ export default function College() {
 				<div className="space-y-4">
 					<p className="font-mono text-xs uppercase tracking-[0.45em] text-aperture-blue">
 						<span className="md:hidden">Level 01 // </span>
-						{collegeData.eyebrow}
+						{data.eyebrow}
 					</p>
 					<h3
 						className="text-3xl font-black text-white sm:text-4xl"
 						style={{ fontFamily: "DIN, Helvetica, Arial, sans-serif" }}
 					>
-						{collegeData.heading}
+						{data.heading}
 					</h3>
 					<p className="text-sm leading-7 text-zinc-300">
-						{collegeData.summary}
+						{data.summary}
 					</p>
 					<div className="flex flex-wrap gap-2">
-						{collegeData.highlights.map((highlight) => (
+						{data.highlights.map((highlight) => (
 							<span
 								key={highlight}
 								className="rounded-full border border-aperture-gray/70 px-3 py-1 text-[10px] font-mono uppercase tracking-[0.2em] text-aperture-yellow"

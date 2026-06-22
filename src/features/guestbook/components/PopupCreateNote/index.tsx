@@ -8,7 +8,7 @@ import type { GuestbookNoteInsert } from "../../types";
 
 const formSchema = z.object({
 	author: z.string().trim().min(2, "Name is required"),
-	message: z.string().trim().min(8, "Message should be at least 8 characters"),
+	message: z.string().trim().min(8, "Message should be at least 8 characters").max(500, "Message should not exceed 500 characters"),
 	email: z
 		.string()
 		.trim()
@@ -56,24 +56,31 @@ export const PopupCreateNote = ({
 	initialName,
 	initialEmail,
 }: PopupCreateNoteProps) => {
-	const [values, setValues] = useState<FormValues>(defaultValues);
-	const [errors, setErrors] = useState<Partial<Record<keyof FormValues, string>>>(
-		{},
-	);
+	const [values, setValues] = useState<FormValues>(() => ({
+		...defaultValues,
+		author: initialName ?? "",
+		email: initialEmail ?? "",
+	}));
+
+	const [errors, setErrors] = useState<Partial<Record<keyof FormValues, string>>>({});
 	const [submitError, setSubmitError] = useState<string | null>(null);
 
+	// Reset form when dialog opens
 	useEffect(() => {
-		if (!isOpen) {
-			return;
+		let timeoutId: NodeJS.Timeout;
+		if (isOpen) {
+			timeoutId = setTimeout(() => {
+				setValues({
+					...defaultValues,
+					author: initialName ?? "",
+					email: initialEmail ?? "",
+				});
+				setErrors({});
+				setSubmitError(null);
+			}, 0);
 		}
-		setValues({
-			...defaultValues,
-			author: initialName ?? "",
-			email: initialEmail ?? "",
-		});
-		setErrors({});
-		setSubmitError(null);
-	}, [initialEmail, initialName, isOpen]);
+		return () => clearTimeout(timeoutId);
+	}, [isOpen, initialName, initialEmail]);
 
 	useEffect(() => {
 		if (!isOpen) {

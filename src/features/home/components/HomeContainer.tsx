@@ -4,8 +4,14 @@ import { CasesOfStudy } from "./CasesOfStudy";
 import { AboutMe } from "./AboutMe";
 import { ContactMe } from "./ContactMe";
 import { Footer } from "./Footer";
+import type { HomeCaseOfStudy, HomeService } from "../types";
 
-export const HomeContainer = () => {
+type HomeContainerProps = {
+  services: HomeService[];
+  casesOfStudy: HomeCaseOfStudy[];
+};
+
+export const HomeContainer = ({ services, casesOfStudy }: HomeContainerProps) => {
   return (
     <main className="relative w-full">
 
@@ -14,11 +20,11 @@ export const HomeContainer = () => {
       </section>
 
       <section id="what-i-do" className="py-20 px-6">
-        <WhatIDo />
+        <WhatIDo services={services} />
       </section>
 
       <section id="cases" className="py-20 bg-aperture-dark/30">
-        <CasesOfStudy />
+        <CasesOfStudy cases={casesOfStudy} />
       </section>
 
       <section id="about" className="py-20 bg-aperture-dark/30">

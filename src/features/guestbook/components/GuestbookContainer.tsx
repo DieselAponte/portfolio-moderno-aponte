@@ -4,67 +4,17 @@ import { useMemo, useState } from "react";
 import { Footer } from "../../home/components/Footer";
 import { useGuestbook } from "../hooks/useGuestbook";
 import { useGuestbookAuth } from "../hooks/useGuestbookAuth";
-import type { GuestbookNote, GuestbookNoteInsert } from "../types";
+import type { GuestbookNoteInsert } from "../types";
 import { AuthGuard } from "./AuthGuard";
 import { BodyNotes } from "./BodyNotes";
 import { HeaderTitle } from "./HeaderTitle";
 import { PopupCreateNote } from "./PopupCreateNote";
-
-const fallbackNotes: GuestbookNote[] = [
-	{
-		id: "01",
-		author: "Test Subject 212",
-		message: "Diagnostics cleared. Interface responsiveness: optimal.",
-		email: "subject212@aperture.lab",
-		site_url: null,
-		github_url: "https://github.com/",
-		avatar_url: null,
-		created_at: "2025-12-21",
-		user_id: null,
-	},
-	{
-		id: "02",
-		author: "Lab Observer",
-		message: "The system narrative feels stable. Continue iteration.",
-		email: null,
-		site_url: "https://aperture.lab",
-		github_url: null,
-		avatar_url: null,
-		created_at: "2025-12-20",
-		user_id: null,
-	},
-	{
-		id: "03",
-		author: "Compliance Lead",
-		message:
-			"Note cadence acceptable. Deployment readiness remains within limits.",
-		email: "compliance@aperture.lab",
-		site_url: null,
-		github_url: null,
-		avatar_url: null,
-		created_at: "2025-12-18",
-		user_id: null,
-	},
-	{
-		id: "04",
-		author: "Field Operator",
-		message:
-			"Telemetry overlay reads clean. Keep the orange highlights on focus.",
-		email: null,
-		site_url: "https://operator.notes",
-		github_url: "https://github.com/",
-		avatar_url: null,
-		created_at: "2025-12-16",
-		user_id: null,
-	},
-];
 
 export default function GuestbookContainer() {
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 	const { user } = useGuestbookAuth();
 	const { notes, isLoading, isSubmitting, error, addNote } = useGuestbook({
 		limit: 12,
-		fallbackNotes,
 	});
 
 	const statusMessage = useMemo(() => {
@@ -107,6 +57,12 @@ export default function GuestbookContainer() {
 						</AuthGuard>
 					</div>
 
+					{!user && !isLoading && (
+						<div className="rounded-2xl border border-white/10 bg-aperture-dark/40 px-4 py-3 text-xs text-zinc-400 text-center flex items-center justify-center gap-2">
+							You need to be authenticated to write a guestbook note. Please log in through the prompt above.
+						</div>
+					)}
+
 					{statusMessage}
 					<BodyNotes notes={notes} isLoading={isLoading} />
 				</div>
@@ -117,8 +73,8 @@ export default function GuestbookContainer() {
 				onSubmit={handleSubmit}
 				isSubmitting={isSubmitting}
 				initialName={
-					typeof user?.user_metadata?.full_name === "string"
-						? user.user_metadata.full_name
+					typeof user?.name === "string"
+						? user.name
 						: user?.email ?? ""
 				}
 				initialEmail={user?.email ?? ""}

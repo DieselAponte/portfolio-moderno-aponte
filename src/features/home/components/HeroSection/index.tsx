@@ -49,7 +49,7 @@ export const HeroSection = () => {
             Full-Stack Developer
           </p>
           <p className="mt-8 max-w-xl font-mono text-sm text-zinc-300 sm:text-base">
-            "Innovacion tecnologica para el presente y el futuro"
+            &quot;Innovacion tecnologica para el presente y el futuro&quot;
           </p>
         </div>
       </div>
