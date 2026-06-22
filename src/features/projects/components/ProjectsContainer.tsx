@@ -4,8 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Footer } from "../../home/components/Footer";
 import { useProjectFilters } from "../hooks/useProjectFIlters";
 import {
-  createProjectsService,
-  createSupabaseProjectsRepository,
+  fetchProjects,
 } from "../services/projects.service";
 import type { Project } from "../types";
 import { HeaderTitle } from "./HeaderTitle";
@@ -97,10 +96,6 @@ const fallbackProjects: Project[] = [
   },
 ];
 
-const projectsService = createProjectsService(
-  createSupabaseProjectsRepository(),
-);
-
 export default function ProjectsContainer() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -120,7 +115,7 @@ export default function ProjectsContainer() {
     setIsLoading(true);
     setError(null);
     try {
-      const items = await projectsService.getProjects({
+      const items = await fetchProjects({
         limit: PAGE_LIMIT,
         offset: 0,
       });
@@ -146,7 +141,7 @@ export default function ProjectsContainer() {
 
     setIsLoadingMore(true);
     try {
-      const nextBatch = await projectsService.getProjects({
+      const nextBatch = await fetchProjects({
         limit: PAGE_LIMIT,
         offset: projects.length,
       });
@@ -167,7 +162,14 @@ export default function ProjectsContainer() {
   }, [hasMore, isLoadingMore, projects.length]);
 
   useEffect(() => {
-    loadProjects();
+    let timeoutId: NodeJS.Timeout;
+    const init = () => {
+      timeoutId = setTimeout(() => {
+        void loadProjects();
+      }, 0);
+    };
+    init();
+    return () => clearTimeout(timeoutId);
   }, [loadProjects]);
 
   const statusMessage = useMemo(() => {

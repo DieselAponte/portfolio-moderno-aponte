@@ -3,8 +3,19 @@ import HeroSection from "./HeroSection";
 import College from "./Trayectory/College";
 import CurrentlyWorkingOn from "./Trayectory/CurrentlyWorkingOn";
 import Experience from "./Trayectory/Experience";
+import type { TrajectorySectionData, ExperienceSlide, TechBubble } from "../types";
 
-export default function ExperienceContainer() {
+type ExperienceContainerProps = {
+  modules: TrajectorySectionData[];
+  slides: ExperienceSlide[];
+  techBubbles: TechBubble[];
+};
+
+export default function ExperienceContainer({ modules, slides, techBubbles }: ExperienceContainerProps) {
+  const collegeModule = modules.find(m => m.id === "01");
+  const currentlyWorkingModule = modules.find(m => m.id === "02");
+  const experienceModule = modules.find(m => m.id === "03");
+
   return (
     <main className="relative w-full overflow-hidden">
       <HeroSection />
@@ -23,9 +34,9 @@ export default function ExperienceContainer() {
         </div>
 
         <div className="relative mx-auto w-full max-w-6xl space-y-24 px-6 py-24">
-          <College />
-          <CurrentlyWorkingOn />
-          <Experience />
+          {collegeModule && <College data={collegeModule} />}
+          {currentlyWorkingModule && <CurrentlyWorkingOn data={currentlyWorkingModule} techBubbles={techBubbles} />}
+          {experienceModule && <Experience data={experienceModule} slides={slides} />}
         </div>
       </section>
 

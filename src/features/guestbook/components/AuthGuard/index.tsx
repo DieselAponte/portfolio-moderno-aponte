@@ -67,7 +67,7 @@ export const AuthGuard = ({ children }: AuthGuardProps) => {
 		<div className="flex flex-wrap items-center gap-3">
 			{children}
 			<div className="flex items-center gap-2 rounded-full border border-aperture-gray/70 bg-black/40 px-3 py-2 text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-400">
-				<span>{user?.user_metadata?.full_name ?? user?.email ?? "Active"}</span>
+				<span>{user?.name ?? user?.email ?? "Active"}</span>
 				<button
 					type="button"
 					onClick={() => void signOut()}

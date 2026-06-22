@@ -2,58 +2,6 @@ import IBMPCMonitor from "../IBMPCMonitor";
 import PortalPanel from "../PortalPanel";
 import type { TechBubble, TrajectorySectionData } from "../../types";
 
-const workingData: TrajectorySectionData = {
-	id: "02",
-	title: "Active Protocol",
-	subtitle: "Aperture Research Division",
-	status: "IN PROGRESS",
-	eyebrow: "Division // Current Work",
-	heading: "Building resilient digital systems",
-	summary:
-		"Designing responsive interfaces and scalable product systems with a cinematic Aperture aesthetic. The objective is a tightly engineered portfolio that still feels human and alive.",
-	highlights: [
-		"Design Systems",
-		"R3F Scenes",
-		"Performance Budgeting",
-		"Interaction Design",
-	],
-};
-
-const techBubbles: TechBubble[] = [
-	{
-		id: "01",
-		label: "Next.js",
-		top: "8%",
-		right: "-6%",
-		delay: "0s",
-		duration: "6s",
-	},
-	{
-		id: "02",
-		label: "Framer",
-		top: "28%",
-		right: "-12%",
-		delay: "0.8s",
-		duration: "5.4s",
-	},
-	{
-		id: "03",
-		label: "R3F",
-		top: "52%",
-		right: "-8%",
-		delay: "1.4s",
-		duration: "6.6s",
-	},
-	{
-		id: "04",
-		label: "Supabase",
-		top: "70%",
-		right: "-14%",
-		delay: "0.3s",
-		duration: "5.8s",
-	},
-];
-
 const currentFocus = [
 	"Interface orchestration",
 	"3D scene optimization",
@@ -61,15 +9,21 @@ const currentFocus = [
 	"Low-latency deployments",
 ];
 
-export default function CurrentlyWorkingOn() {
+export default function CurrentlyWorkingOn({
+	data,
+	techBubbles = [],
+}: {
+	data: TrajectorySectionData;
+	techBubbles: TechBubble[];
+}) {
 	return (
 		<section className="grid gap-10 md:grid-cols-[minmax(0,240px)_minmax(0,1fr)] lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
 			<div className="self-start hidden md:block md:sticky md:top-24">
 				<PortalPanel
-					id={workingData.id}
-					title={workingData.title}
-					subtitle={workingData.subtitle}
-					status={workingData.status}
+					id={data.id}
+					title={data.title}
+					subtitle={data.subtitle}
+					status={data.status}
 				/>
 			</div>
 
@@ -77,19 +31,19 @@ export default function CurrentlyWorkingOn() {
 				<div className="space-y-4">
 					<p className="font-mono text-xs uppercase tracking-[0.45em] text-aperture-blue">
 						<span className="md:hidden">Level 02 // </span>
-						{workingData.eyebrow}
+						{data.eyebrow}
 					</p>
 					<h3
 						className="text-3xl font-black text-white sm:text-4xl"
 						style={{ fontFamily: "DIN, Helvetica, Arial, sans-serif" }}
 					>
-						{workingData.heading}
+						{data.heading}
 					</h3>
 					<p className="text-sm leading-7 text-zinc-300">
-						{workingData.summary}
+						{data.summary}
 					</p>
 					<div className="flex flex-wrap gap-2">
-						{workingData.highlights.map((highlight) => (
+						{data.highlights.map((highlight) => (
 							<span
 								key={highlight}
 								className="rounded-full border border-aperture-gray/70 px-3 py-1 text-[10px] font-mono uppercase tracking-[0.2em] text-aperture-yellow"

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getMockArticleById } from "../../../features/blog/data/mockArticles";
+import { getArticleById } from "../../../features/blog/services/blog.service";
 
 const formatDate = (value: string) => {
   const parsed = new Date(value);
@@ -18,11 +18,11 @@ const formatDate = (value: string) => {
 };
 
 type PageProps = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 
-export const generateMetadata = ({ params }: PageProps): Metadata => {
-  const article = getMockArticleById(params.id);
+export const generateMetadata = async ({ params }: PageProps): Promise<Metadata> => {
+  const article = await getArticleById((await params).id);
   if (!article) {
     return { title: "Article not found" };
   }
@@ -50,8 +50,8 @@ export const generateMetadata = ({ params }: PageProps): Metadata => {
   };
 };
 
-export default function BlogArticlePage({ params }: PageProps) {
-  const article = getMockArticleById(params.id);
+export default async function BlogArticlePage({ params }: PageProps) {
+  const article = await getArticleById((await params).id);
   if (!article) {
     notFound();
   }

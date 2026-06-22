@@ -2,7 +2,6 @@
 
 import { useMemo } from "react";
 import { Footer } from "../../home/components/Footer";
-import { mockBlogArticles, mockFeaturedIds } from "../data/mockArticles";
 import { useBlogFilters } from "../hooks/useBlogFilters";
 import type { BlogArticle } from "../types";
 import { FilterNavigation } from "./FilterNavigation";
@@ -20,22 +19,15 @@ export default function BlogContainer({
 	articles = [],
 	featuredArticles = [],
 }: BlogContainerProps) {
-	const usingMockData = articles.length === 0;
-	const baseArticles = usingMockData ? mockBlogArticles : articles;
+	const baseArticles = articles;
 
 	const resolvedFeatured = useMemo(() => {
 		if (featuredArticles.length > 0) {
 			return featuredArticles;
 		}
 
-		if (usingMockData) {
-			return baseArticles
-				.filter((article) => mockFeaturedIds.includes(article.id))
-				.slice(0, 3);
-		}
-
 		return baseArticles.slice(0, 3);
-	}, [baseArticles, featuredArticles, usingMockData]);
+	}, [baseArticles, featuredArticles]);
 
 	const listSource = useMemo(() => {
 		if (resolvedFeatured.length === 0) {

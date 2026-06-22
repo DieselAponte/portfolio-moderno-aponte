@@ -1,28 +1,10 @@
-const cases = [
-  {
-    id: "01",
-    title: "Web Ecommerce",
-    description:
-      "Scalable commerce platform with realtime inventory, modular UI, and a focused conversion flow.",
-    tags: ["TypeScript", "Next.js", "Stripe", "Docker", "Tailwind"],
-  },
-  {
-    id: "02",
-    title: "Mobile App",
-    description:
-      "Cross-platform experience built with reusable components, offline caching, and analytics.",
-    tags: ["React", "Expo", "Zod", "Supabase"],
-  },
-  {
-    id: "03",
-    title: "Desktop App",
-    description:
-      "Internal tooling suite with role-based workflows, audit trails, and operational dashboards.",
-    tags: ["Electron", "Node", "PostgreSQL", "CI/CD"],
-  },
-];
+import type { HomeCaseOfStudy } from "../../types";
 
-export const CasesOfStudy = () => {
+type CasesOfStudyProps = {
+  cases: HomeCaseOfStudy[];
+};
+
+export const CasesOfStudy = ({ cases }: CasesOfStudyProps) => {
   return (
     <div className="mx-auto w-full max-w-6xl">
       <div className="text-center">

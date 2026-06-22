@@ -99,8 +99,8 @@ export const createGuestbookService = (
 			};
 
 			const { data, error } = await client
-				.from(table)
-				.insert(payload)
+				.from("guestbook_notes")
+				.insert([payload] as any)
 				.select(
 					"id,author,message,email,site_url,github_url,avatar_url,created_at,user_id",
 				)

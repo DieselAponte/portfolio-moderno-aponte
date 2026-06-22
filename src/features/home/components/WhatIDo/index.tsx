@@ -1,36 +1,10 @@
-const services = [
-  {
-    id: "01",
-    title: "Full-Stack Development",
-    description:
-      "From interface craft to backend systems, I design and ship web products that stay reliable at scale.",
-    highlights: [
-      "TypeScript",
-      "React",
-      "Next.js",
-      "Node",
-      "Docker",
-      "PostgreSQL",
-      "Supabase",
-    ],
-  },
-  {
-    id: "02",
-    title: "UI/UX Frontend",
-    description:
-      "Interfaces with clarity and motion. I build responsive systems that feel clean, fast, and intentional.",
-    highlights: ["Figma", "Design Systems", "Accessibility", "Motion"],
-  },
-  {
-    id: "03",
-    title: "Optimization",
-    description:
-      "Performance audits, architectural tuning, and data-driven refinements to keep apps lean and future-ready.",
-    highlights: ["Scalability", "Caching", "Telemetry", "CI/CD"],
-  },
-];
+import type { HomeService } from "../../types";
 
-export const WhatIDo = () => {
+type WhatIDoProps = {
+  services: HomeService[];
+};
+
+export const WhatIDo = ({ services }: WhatIDoProps) => {
   return (
     <div className="mx-auto w-full max-w-6xl">
       <div className="flex flex-col gap-6 text-center">

@@ -59,7 +59,7 @@ export default function PortalPanel({
   const numberControls = useAnimation();
   const [isBooting, setIsBooting] = useState(true);
   const [idleFlicker, setIdleFlicker] = useState(false);
-  const barcodeBars = useMemo(createBarcode, []);
+  const barcodeBars = useMemo(() => createBarcode(), []);
   const pictograms = useMemo(() => Array.from({ length: 12 }, (_, i) => i), []);
 
   useEffect(() => {
@@ -127,7 +127,6 @@ export default function PortalPanel({
 
   useEffect(() => {
     let flickerTimer: ReturnType<typeof setTimeout> | undefined;
-    let startTimer: ReturnType<typeof setTimeout> | undefined;
 
     const scheduleFlicker = () => {
       const delay = 3000 + Math.random() * 3200;
@@ -138,7 +137,7 @@ export default function PortalPanel({
       }, delay);
     };
 
-    startTimer = setTimeout(scheduleFlicker, 2000);
+    const startTimer = setTimeout(scheduleFlicker, 2000);
 
     return () => {
       if (flickerTimer) clearTimeout(flickerTimer);
