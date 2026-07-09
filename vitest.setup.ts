@@ -1,17 +1,9 @@
 import { vi } from "vitest";
 
-// Mock better-auth globally to avoid database initialization errors during unit tests.
-vi.mock("../../lib/auth", () => ({
-  auth: {
-    api: {
-      getSession: vi.fn(),
-    }
-  }
+// Mock the centralized admin-auth module to avoid BetterAuth initialization during tests.
+vi.mock("../../../lib/admin-auth", () => ({
+  checkAdminAuth: vi.fn(),
 }));
-vi.mock("../../../lib/auth", () => ({
-  auth: {
-    api: {
-      getSession: vi.fn(),
-    }
-  }
+vi.mock("../../lib/admin-auth", () => ({
+  checkAdminAuth: vi.fn(),
 }));

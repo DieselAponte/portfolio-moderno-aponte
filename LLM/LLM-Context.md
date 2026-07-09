@@ -1,7 +1,7 @@
 # LLM Context: Portfolio Moderno Aponte
 
 ## 🎯 Objetivo del Proyecto
-Desarrollar un portfolio de alto rendimiento con estética cinemática/tecnológica inspirada en Aperture Science (Portal 2), utilizando una arquitectura escalable y tipado estricto.
+Desarrollar un portfolio de alto rendimiento con estética cinemática/tecnológica inspirada en Aperture Science (Portal 2), utilizando una arquitectura escalable y tipado estricto. Este portfolio debe de ser mantenible y garantizar la autenticación de los roles de usuario y administrador garantizando la seguridad y diferencias de responsabilidades.
 
 ## 🛠️ Stack Tecnológico
 - **Framework:** Next.js 15+ (App Router)
@@ -10,7 +10,7 @@ Desarrollar un portfolio de alto rendimiento con estética cinemática/tecnológ
 - **Animaciones:** Framer Motion
 - **3D:** React Three Fiber + Drei + Three.js
 - **Infraestructura:** Supabase (BaaS), Vercel (Deploy)
-- **Entorno:** Fedora Linux / VS Code
+- **Entorno:** Fedora Linux
 
 ## 🏛️ Axiomas de Desarrollo
 1. **Feature-Based Architecture:** El código se organiza por dominio funcional en `src/features/`. Cada feature es autónoma.

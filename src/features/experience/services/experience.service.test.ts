@@ -1,14 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { redis } from '../../../lib/redis';
 
-vi.mock('../../../lib/auth', () => ({
-  auth: {
-    api: {
-      getSession: vi.fn(),
-    }
-  }
-}));
-
 import { fetchModules, fetchSlides } from './experience.service';
 
 vi.mock('../../../lib/redis', () => ({
@@ -28,9 +20,38 @@ vi.mock('@supabase/supabase-js', () => {
   const createMockQuery = (table: string) => {
     let mockData: Array<Record<string, unknown>> = [];
     if (table === 'experience_modules') {
-        mockData = [{ id: 'mod-1', title: 'Module 1' }];
+        mockData = [{
+          id: '01',
+          title: 'College',
+          subtitle: 'B.S. Computer Science',
+          status: 'COMPLETED',
+          eyebrow: 'Module 01',
+          heading: 'College Years',
+          summary: 'Foundation in CS fundamentals',
+          highlights: ['Data Structures', 'Algorithms'],
+          order_index: 1
+        }];
     } else if (table === 'experience_slides') {
-        mockData = [{ id: 'slide-1', title: 'Slide 1' }];
+        mockData = [{
+          id: 'slide-1',
+          role: 'Software Engineer',
+          organization: 'Aperture Labs',
+          timeframe: '2023 - Present',
+          summary: 'Building portals',
+          tags: ['React', 'TypeScript'],
+          module_id: '03',
+          order_index: 1
+        }];
+    } else if (table === 'tech_bubbles') {
+        mockData = [{
+          id: 'bubble-1',
+          label: 'React',
+          top: '20%',
+          right: '30%',
+          delay: '0s',
+          duration: '3s',
+          module_id: '02'
+        }];
     }
 
     const query = Promise.resolve({
@@ -77,11 +98,11 @@ describe('Experience Service', () => {
     expect(redis.get).toHaveBeenCalled();
     expect(redis.setex).toHaveBeenCalled();
     expect(result.length).toBe(1);
-    expect(result[0].id).toBe('mod-1');
+    expect(result[0].id).toBe('01');
   });
 
   it('fetchSlides should return cached data if available', async () => {
-    const cachedData = [{ id: 'cached-slide-1', title: 'Cached Slide' }];
+    const cachedData = [{ id: 'cached-slide-1', role: 'Cached Role' }];
     vi.mocked(redis.get).mockResolvedValueOnce(JSON.stringify(cachedData));
 
     const result = await fetchSlides();

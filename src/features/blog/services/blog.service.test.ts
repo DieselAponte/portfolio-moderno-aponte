@@ -1,14 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { redis } from '../../../lib/redis';
 
-vi.mock('../../../lib/auth', () => ({
-  auth: {
-    api: {
-      getSession: vi.fn(),
-    }
-  }
-}));
-
 import { fetchArticles } from './blog.service';
 
 // Mock the redis client
@@ -28,7 +20,6 @@ vi.mock('@supabase/supabase-js', () => {
   const mockEq = vi.fn().mockReturnThis();
   const mockLimit = vi.fn().mockReturnThis();
 
-  // Create a base query object that resolves to our mock data
   const createMockQuery = () => {
     const query = Promise.resolve({
       data: [{

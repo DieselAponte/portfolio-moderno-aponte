@@ -19,9 +19,11 @@ const resolveErrorMessage = (error: unknown) => {
 	return "Unexpected guestbook error.";
 };
 
+const DEFAULT_FALLBACK_NOTES: GuestbookNote[] = [];
+
 export const useGuestbook = ({
 	limit = 12,
-	fallbackNotes = [],
+	fallbackNotes = DEFAULT_FALLBACK_NOTES,
 }: UseGuestbookOptions = {}) => {
 	const serviceRef = useRef<GuestbookService | null>(null);
 	const [notes, setNotes] = useState<GuestbookNote[]>(fallbackNotes);

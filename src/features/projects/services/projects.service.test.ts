@@ -1,14 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { redis } from '../../../lib/redis';
 
-vi.mock('../../../lib/auth', () => ({
-  auth: {
-    api: {
-      getSession: vi.fn(),
-    }
-  }
-}));
-
 import { fetchProjects } from './projects.service';
 
 vi.mock('../../../lib/redis', () => ({
