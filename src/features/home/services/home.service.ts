@@ -1,20 +1,13 @@
 "use server";
 
-import { createClient } from "@supabase/supabase-js";
+import { getSupabaseClient } from "../../../lib/supabase";
 import { redis } from "../../../lib/redis";
 import type { HomeCaseOfStudy, HomeService } from "../types";
-import { auth } from "../../../lib/auth";
-import { headers } from "next/headers";
+import { checkAdminAuth } from "../../../lib/admin-auth";
 
 const CACHE_KEY_CASES = "home_cases_of_study";
 const CACHE_KEY_SERVICES = "home_services";
 const CACHE_TTL = 3600;
-
-const getSupabaseClient = () => {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-    const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
-    return createClient(url, key);
-};
 
 export const fetchCasesOfStudy = async (): Promise<HomeCaseOfStudy[]> => {
     const cached = await redis.get(CACHE_KEY_CASES);
@@ -52,13 +45,6 @@ const invalidateHomeCache = async () => {
     const keys = await redis.keys("home_*");
     if (keys.length > 0) {
         await redis.del(...keys);
-    }
-};
-
-const checkAdminAuth = async () => {
-    const session = await auth.api.getSession({ headers: await headers() });
-    if (!session || session.user.role !== "admin") {
-        throw new Error("Unauthorized");
     }
 };
 

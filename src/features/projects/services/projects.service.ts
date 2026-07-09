@@ -1,10 +1,9 @@
 "use server";
 
-import { createClient } from "@supabase/supabase-js";
+import { getSupabaseClient } from "../../../lib/supabase";
 import { redis } from "../../../lib/redis";
 import type { Project } from "../types";
-import { auth } from "../../../lib/auth";
-import { headers } from "next/headers";
+import { checkAdminAuth } from "../../../lib/admin-auth";
 
 export type ProjectRecord = {
 	id: string;
@@ -24,12 +23,6 @@ export type ProjectsQuery = {
 
 const CACHE_KEY_PREFIX = "projects:";
 const CACHE_TTL = 3600;
-
-const getSupabaseClient = () => {
-	const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-	const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
-	return createClient(url, key);
-};
 
 const mapRecordToProject = (record: ProjectRecord): Project => ({
 	id: record.id,
@@ -81,13 +74,6 @@ const invalidateProjectsCache = async () => {
     const keys = await redis.keys(`${CACHE_KEY_PREFIX}*`);
     if (keys.length > 0) {
         await redis.del(...keys);
-    }
-};
-
-const checkAdminAuth = async () => {
-    const session = await auth.api.getSession({ headers: await headers() });
-    if (!session || session.user.role !== "admin") {
-        throw new Error("Unauthorized");
     }
 };
 

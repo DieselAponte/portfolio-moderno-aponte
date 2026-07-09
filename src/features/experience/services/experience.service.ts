@@ -1,21 +1,14 @@
 "use server";
 
-import { createClient } from "@supabase/supabase-js";
+import { getSupabaseClient } from "../../../lib/supabase";
 import { redis } from "../../../lib/redis";
 import type { TechBubble, ExperienceSlide, TrajectorySectionData } from "../types";
-import { auth } from "../../../lib/auth";
-import { headers } from "next/headers";
+import { checkAdminAuth } from "../../../lib/admin-auth";
 
 const CACHE_KEY_MODULES = "experience_modules";
 const CACHE_KEY_SLIDES = "experience_slides";
 const CACHE_KEY_BUBBLES = "tech_bubbles";
 const CACHE_TTL = 3600;
-
-const getSupabaseClient = () => {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-    const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
-    return createClient(url, key);
-};
 
 export const fetchModules = async (): Promise<TrajectorySectionData[]> => {
     const cached = await redis.get(CACHE_KEY_MODULES);
@@ -81,13 +74,6 @@ const invalidateExperienceCache = async () => {
     const allKeys = [...keys, ...techKeys];
     if (allKeys.length > 0) {
         await redis.del(...allKeys);
-    }
-};
-
-const checkAdminAuth = async () => {
-    const session = await auth.api.getSession({ headers: await headers() });
-    if (!session || session.user.role !== "admin") {
-        throw new Error("Unauthorized");
     }
 };
 

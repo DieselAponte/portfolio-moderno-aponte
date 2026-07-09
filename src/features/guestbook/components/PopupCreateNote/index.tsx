@@ -104,7 +104,7 @@ export const PopupCreateNote = ({
 		const parsed = formSchema.safeParse(values);
 		if (!parsed.success) {
 			const fieldErrors: Partial<Record<keyof FormValues, string>> = {};
-			parsed.error.errors.forEach((issue: z.ZodIssue) => {
+			parsed.error.issues.forEach((issue: z.ZodIssue) => {
 				const field = issue.path[0] as keyof FormValues;
 				fieldErrors[field] = issue.message;
 			});
