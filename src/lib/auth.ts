@@ -6,7 +6,7 @@ import { Pool } from "pg";
 export const auth = betterAuth({
   emailAndPassword: { enabled: false },
   database: new Pool({
-    connectionString: process.env.DATABASE_URL,
+    connectionString: process.env.SUPABASE_URL,
   }),
   socialProviders: {
     github: {
