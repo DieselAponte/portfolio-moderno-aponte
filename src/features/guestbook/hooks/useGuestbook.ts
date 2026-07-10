@@ -6,6 +6,7 @@ import {
 	createGuestbookService,
 	type GuestbookService,
 } from "../services/guestbook.service";
+import { createGuestbookNoteAction } from "../../../app/actions/guestbook";
 
 type UseGuestbookOptions = {
 	limit?: number;
@@ -72,7 +73,15 @@ export const useGuestbook = ({
 		setNotes((prev) => [optimisticNote, ...prev]);
 
 		try {
-			const created = await getService().insertNote(note);
+			// We can omit user_id from client payload as it's handled on the server
+			const created = await createGuestbookNoteAction({
+				author: note.author,
+				message: note.message,
+				email: note.email,
+				site_url: note.site_url,
+				github_url: note.github_url,
+				avatar_url: note.avatar_url,
+			});
 			setNotes((prev) =>
 				prev.map((item) => (item.id === optimisticNote.id ? created : item))
 			);

@@ -6,7 +6,6 @@ import {
 import type {
 	GuestbookDatabase,
 	GuestbookNote,
-	GuestbookNoteInsert,
 } from "../types";
 
 type SupabaseConfig = {
@@ -47,7 +46,6 @@ export const getGuestbookClient = (
 
 export type GuestbookService = {
 	getNotes: (limit?: number) => Promise<GuestbookNote[]>;
-	insertNote: (note: GuestbookNoteInsert) => Promise<GuestbookNote>;
 	subscribeToNotes: (onInsert: (note: GuestbookNote) => void) => () => void;
 };
 
@@ -77,44 +75,6 @@ export const createGuestbookService = (
 			}
 
 			return data ?? [];
-		},
-		async insertNote(note) {
-			const { data: sessionData, error: sessionError } =
-				await client.auth.getSession();
-			if (sessionError) {
-				throw new Error(sessionError.message);
-			}
-			if (!sessionData.session) {
-				throw new Error("Authentication required.");
-			}
-
-			const payload: GuestbookNoteInsert = {
-				author: note.author.trim(),
-				message: note.message.trim(),
-				email: sanitizeValue(note.email),
-				site_url: sanitizeValue(note.site_url),
-				github_url: sanitizeValue(note.github_url),
-				avatar_url: sanitizeValue(note.avatar_url),
-				user_id: sessionData.session.user.id,
-			};
-
-			const { data, error } = await client
-				.from("guestbook_notes")
-				.insert([payload] as any)
-				.select(
-					"id,author,message,email,site_url,github_url,avatar_url,created_at,user_id",
-				)
-				.single();
-
-			if (error) {
-				throw new Error(`Supabase insertNote failed: ${error.message}`);
-			}
-
-			if (!data) {
-				throw new Error("Supabase insertNote returned no data.");
-			}
-
-			return data;
 		},
 		subscribeToNotes(onInsert) {
 			const channel = client
