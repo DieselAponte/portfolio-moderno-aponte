@@ -211,11 +211,10 @@ export const PopupCreateNote = ({
 									<input
 										type="text"
 										value={values.author}
-										onChange={(event) =>
-											handleChange("author", event.target.value)
-										}
+										readOnly
+										disabled
 										placeholder="Subject name"
-										className={inputClassName}
+										className={`${inputClassName} opacity-50 cursor-not-allowed`}
 									/>
 									{errors.author ? (
 										<p className="mt-2 text-xs text-aperture-orange">
@@ -232,11 +231,10 @@ export const PopupCreateNote = ({
 										<input
 											type="email"
 											value={values.email}
-											onChange={(event) =>
-												handleChange("email", event.target.value)
-											}
+											readOnly
+											disabled
 											placeholder="contact@email.com"
-											className={inputClassName}
+											className={`${inputClassName} opacity-50 cursor-not-allowed`}
 										/>
 										{errors.email ? (
 											<p className="mt-2 text-xs text-aperture-orange">

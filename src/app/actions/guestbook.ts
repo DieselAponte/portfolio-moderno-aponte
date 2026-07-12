@@ -5,11 +5,16 @@ import { requireServerSession } from "../../lib/auth-server";
 import type { GuestbookNoteInsert, GuestbookNote } from "../../features/guestbook/types";
 
 const sanitizeValue = (value?: string | null) => {
+	if (value === "$undefined" || value === "undefined" || value === "") {
+		return null;
+	}
 	const trimmed = value?.trim();
 	return trimmed ? trimmed : null;
 };
 
-export async function createGuestbookNoteAction(note: Omit<GuestbookNoteInsert, "user_id">): Promise<GuestbookNote> {
+export async function createGuestbookNoteAction(
+	note: Omit<GuestbookNoteInsert, "user_id" | "author" | "email" | "avatar_url">
+): Promise<GuestbookNote> {
     const sessionData = await requireServerSession();
     
     // We need service_role key to bypass RLS since the client won't have the Supabase Auth JWT
@@ -28,12 +33,12 @@ export async function createGuestbookNoteAction(note: Omit<GuestbookNoteInsert, 
     });
 
     const payload: GuestbookNoteInsert = {
-        author: note.author.trim(),
+        author: sessionData.user.name.trim(),
         message: note.message.trim(),
-        email: sanitizeValue(note.email),
+        email: sessionData.user.email,
         site_url: sanitizeValue(note.site_url),
         github_url: sanitizeValue(note.github_url),
-        avatar_url: sanitizeValue(note.avatar_url),
+        avatar_url: sessionData.user.image || null,
         user_id: sessionData.user.id,
     };
 

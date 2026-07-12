@@ -7,6 +7,7 @@ import {
 	type GuestbookService,
 } from "../services/guestbook.service";
 import { createGuestbookNoteAction } from "../../../app/actions/guestbook";
+import { useAuth } from "../../../components/providers/AuthProvider";
 
 type UseGuestbookOptions = {
 	limit?: number;
@@ -55,6 +56,8 @@ export const useGuestbook = ({
 		}
 	}, [fallbackNotes, limit]);
 
+	const { user } = useAuth();
+
 	const addNote = useCallback(async (note: GuestbookNoteInsert) => {
 		setIsSubmitting(true);
 		setError(null);
@@ -62,11 +65,12 @@ export const useGuestbook = ({
 		const optimisticNote: GuestbookNote = {
 			id: `optimistic-${Date.now()}`,
 			...note,
-			email: note.email || null,
+			author: user?.name || note.author,
+			email: user?.email || note.email || null,
+			avatar_url: user?.image || note.avatar_url || null,
 			site_url: note.site_url || null,
 			github_url: note.github_url || null,
-			avatar_url: note.avatar_url || null,
-			user_id: note.user_id || null,
+			user_id: user?.id || note.user_id || null,
 			created_at: new Date().toISOString(),
 		};
 
@@ -75,12 +79,9 @@ export const useGuestbook = ({
 		try {
 			// We can omit user_id from client payload as it's handled on the server
 			const created = await createGuestbookNoteAction({
-				author: note.author,
 				message: note.message,
-				email: note.email,
-				site_url: note.site_url,
-				github_url: note.github_url,
-				avatar_url: note.avatar_url,
+				site_url: note.site_url ?? null,
+				github_url: note.github_url ?? null,
 			});
 			setNotes((prev) =>
 				prev.map((item) => (item.id === optimisticNote.id ? created : item))
