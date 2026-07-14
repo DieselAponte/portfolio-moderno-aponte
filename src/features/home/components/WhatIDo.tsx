@@ -1,4 +1,4 @@
-import type { HomeService } from "../../types";
+import type { HomeService } from "../types";
 
 type WhatIDoProps = {
   services: HomeService[];

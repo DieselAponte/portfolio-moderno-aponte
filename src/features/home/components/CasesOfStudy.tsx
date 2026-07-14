@@ -1,4 +1,4 @@
-import type { HomeCaseOfStudy } from "../../types";
+import type { HomeCaseOfStudy } from "../types";
 
 type CasesOfStudyProps = {
   cases: HomeCaseOfStudy[];

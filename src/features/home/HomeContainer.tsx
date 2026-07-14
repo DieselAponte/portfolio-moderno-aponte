@@ -1,10 +1,10 @@
-import { HeroSection } from "./HeroSection";
-import { WhatIDo } from "./WhatIDo";
-import { CasesOfStudy } from "./CasesOfStudy";
-import { AboutMe } from "./AboutMe";
-import { ContactMe } from "./ContactMe";
-import { Footer } from "./Footer";
-import type { HomeCaseOfStudy, HomeService } from "../types";
+import { HeroSection } from "./components/HeroSection/HomeHeroSection";
+import { WhatIDo } from "./components/WhatIDo";
+import { CasesOfStudy } from "./components/CasesOfStudy";
+import { AboutMe } from "./components/AboutMe";
+import { ContactMe } from "./components/ContactMe";
+import { Footer } from "./components/Footer";
+import type { HomeCaseOfStudy, HomeService } from "./types";
 
 type HomeContainerProps = {
   services: HomeService[];

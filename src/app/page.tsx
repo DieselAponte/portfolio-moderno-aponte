@@ -1,4 +1,4 @@
-import { HomeContainer } from "../features/home/components/HomeContainer";
+import { HomeContainer } from "../features/home/HomeContainer";
 import { fetchCasesOfStudy, fetchHomeServices } from "../features/home/services/home.service";
 
 export default async function Home() {

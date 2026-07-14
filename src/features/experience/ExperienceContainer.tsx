@@ -1,9 +1,9 @@
-import Aspirations from "./Aspirations";
-import HeroSection from "./HeroSection";
-import College from "./Trayectory/College";
-import CurrentlyWorkingOn from "./Trayectory/CurrentlyWorkingOn";
-import Experience from "./Trayectory/Experience";
-import type { TrajectorySectionData, ExperienceSlide, TechBubble } from "../types";
+import Aspirations from "./components/Aspirations";
+import HeroSection from "./components/ExperienceHeroSection";
+import College from "./components/Trayectory/College";
+import CurrentlyWorkingOn from "./components/Trayectory/CurrentlyWorkingOn";
+import Experience from "./components/Trayectory/ProfessionalExperience";
+import type { TrajectorySectionData, ExperienceSlide, TechBubble } from "./types";
 
 type ExperienceContainerProps = {
   modules: TrajectorySectionData[];

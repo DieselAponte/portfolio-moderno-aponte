@@ -1,4 +1,4 @@
-import ExperienceContainer from "../../features/experience/components/ExperienceContainer";
+import ExperienceContainer from "../../features/experience/ExperienceContainer";
 import { fetchModules, fetchSlides, fetchTechBubbles } from "../../features/experience/services/experience.service";
 
 export default async function ExperiencePage() {

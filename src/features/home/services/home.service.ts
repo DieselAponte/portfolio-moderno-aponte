@@ -71,3 +71,27 @@ export const deleteCaseOfStudy = async (id: string) => {
     if (error) throw new Error(error.message);
     await invalidateHomeCache();
 };
+
+export const addHomeService = async (item: Omit<HomeService, "id">) => {
+    await checkAdminAuth();
+    const client = getSupabaseClient();
+    const { error } = await client.from("home_services").insert(item);
+    if (error) throw new Error(error.message);
+    await invalidateHomeCache();
+};
+
+export const updateHomeService = async (id: string, updates: Partial<HomeService>) => {
+    await checkAdminAuth();
+    const client = getSupabaseClient();
+    const { error } = await client.from("home_services").update(updates).eq("id", id);
+    if (error) throw new Error(error.message);
+    await invalidateHomeCache();
+};
+
+export const deleteHomeService = async (id: string) => {
+    await checkAdminAuth();
+    const client = getSupabaseClient();
+    const { error } = await client.from("home_services").delete().eq("id", id);
+    if (error) throw new Error(error.message);
+    await invalidateHomeCache();
+};
