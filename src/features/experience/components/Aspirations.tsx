@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useCustomTypewriter } from "../../hooks/useCustomTypewriter";
+import { useCustomTypewriter } from "../hooks/useCustomTypewriter";
 
 const primaryText =
 	"The next phase is about building interfaces that feel honest, resilient, and human. I am focused on systems that scale without losing craft, and visuals that carry clear intent.";
