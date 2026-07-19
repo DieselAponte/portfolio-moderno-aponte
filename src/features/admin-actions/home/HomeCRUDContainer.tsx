@@ -13,7 +13,7 @@ import { AddServicesPopup } from "./components/addServices.popup";
 import { EditServicesPopup } from "./components/editServices.popup";
 import { AddCasesPopup } from "./components/addCases.popup";
 import { EditCasesPopup } from "./components/editCases.popup";
-import { ConfirmDeletePopup } from "./components/ConfirmDelete.popup";
+import { ConfirmDeletePopup } from "../shared/components/ConfirmDelete.popup";
 
 import {
   addHomeService,

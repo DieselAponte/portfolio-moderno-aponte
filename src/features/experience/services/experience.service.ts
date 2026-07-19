@@ -2,12 +2,14 @@
 
 import { getSupabaseClient } from "../../../lib/supabase";
 import { redis } from "../../../lib/redis";
-import type { TechBubble, ExperienceSlide, TrajectorySectionData } from "../types";
+import type { TechBubble, ExperienceSlide, TrajectorySectionData, ExperienceCertification, ExperienceCarouselItem } from "../types";
 import { checkAdminAuth } from "../../../lib/admin-auth";
 
 const CACHE_KEY_MODULES = "experience_modules";
 const CACHE_KEY_SLIDES = "experience_slides";
 const CACHE_KEY_BUBBLES = "tech_bubbles";
+const CACHE_KEY_CERTS = "experience_certifications";
+const CACHE_KEY_CAROUSEL = "experience_carousel_items";
 const CACHE_TTL = 3600;
 
 export const fetchModules = async (): Promise<TrajectorySectionData[]> => {
@@ -98,6 +100,124 @@ export const deleteModule = async (id: string) => {
     await checkAdminAuth();
     const client = getSupabaseClient();
     const { error } = await client.from("experience_modules").delete().eq("id", id);
+    if (error) throw new Error(error.message);
+    await invalidateExperienceCache();
+};
+
+// =============================================================================
+// Certifications CRUD
+// =============================================================================
+
+export const fetchCertifications = async (): Promise<ExperienceCertification[]> => {
+    const cached = await redis.get(CACHE_KEY_CERTS);
+    if (cached) return JSON.parse(cached);
+
+    const client = getSupabaseClient();
+    const { data, error } = await client.from("experience_certifications").select("*").order("order_index", { ascending: true });
+
+    if (error) {
+        console.error("Error fetching certifications:", error);
+        return [];
+    }
+
+    await redis.setex(CACHE_KEY_CERTS, CACHE_TTL, JSON.stringify(data));
+    return data as ExperienceCertification[];
+};
+
+export const addCertification = async (item: Omit<ExperienceCertification, "id">) => {
+    await checkAdminAuth();
+    const client = getSupabaseClient();
+    const { error } = await client.from("experience_certifications").insert(item);
+    if (error) throw new Error(error.message);
+    await invalidateExperienceCache();
+};
+
+export const updateCertification = async (id: string, updates: Partial<ExperienceCertification>) => {
+    await checkAdminAuth();
+    const client = getSupabaseClient();
+    const { error } = await client.from("experience_certifications").update(updates).eq("id", id);
+    if (error) throw new Error(error.message);
+    await invalidateExperienceCache();
+};
+
+export const deleteCertification = async (id: string) => {
+    await checkAdminAuth();
+    const client = getSupabaseClient();
+    const { error } = await client.from("experience_certifications").delete().eq("id", id);
+    if (error) throw new Error(error.message);
+    await invalidateExperienceCache();
+};
+
+// =============================================================================
+// Carousel Items CRUD
+// =============================================================================
+
+export const fetchCarouselItems = async (): Promise<ExperienceCarouselItem[]> => {
+    const cached = await redis.get(CACHE_KEY_CAROUSEL);
+    if (cached) return JSON.parse(cached);
+
+    const client = getSupabaseClient();
+    const { data, error } = await client.from("experience_carousel_items").select("*").order("order_index", { ascending: true });
+
+    if (error) {
+        console.error("Error fetching carousel items:", error);
+        return [];
+    }
+
+    await redis.setex(CACHE_KEY_CAROUSEL, CACHE_TTL, JSON.stringify(data));
+    return data as ExperienceCarouselItem[];
+};
+
+export const uploadCarouselImage = async (file: File): Promise<string> => {
+    await checkAdminAuth();
+    const client = getSupabaseClient();
+    const fileExt = file.name.split(".").pop();
+    const fileName = `carousel-${Date.now()}.${fileExt}`;
+    const filePath = `carousel-images/${fileName}`;
+
+    const { error } = await client.storage.from("experience").upload(filePath, file, {
+        cacheControl: "3600",
+        upsert: false,
+    });
+    if (error) throw new Error(error.message);
+
+    const { data: publicUrlData } = client.storage.from("experience").getPublicUrl(filePath);
+    return publicUrlData.publicUrl;
+};
+
+export const deleteCarouselImage = async (imagePath: string) => {
+    await checkAdminAuth();
+    const client = getSupabaseClient();
+    // Extract the storage path from the full public URL
+    const bucketPrefix = "/experience/";
+    const idx = imagePath.indexOf(bucketPrefix);
+    if (idx === -1) return;
+    const storagePath = imagePath.substring(idx + bucketPrefix.length);
+
+    const { error } = await client.storage.from("experience").remove([storagePath]);
+    if (error) console.error("Error deleting carousel image:", error);
+};
+
+export const addCarouselItem = async (item: Omit<ExperienceCarouselItem, "id">) => {
+    await checkAdminAuth();
+    const client = getSupabaseClient();
+    const { error } = await client.from("experience_carousel_items").insert(item);
+    if (error) throw new Error(error.message);
+    await invalidateExperienceCache();
+};
+
+export const updateCarouselItem = async (id: string, updates: Partial<ExperienceCarouselItem>) => {
+    await checkAdminAuth();
+    const client = getSupabaseClient();
+    const { error } = await client.from("experience_carousel_items").update(updates).eq("id", id);
+    if (error) throw new Error(error.message);
+    await invalidateExperienceCache();
+};
+
+export const deleteCarouselItem = async (id: string) => {
+    await checkAdminAuth();
+    const client = getSupabaseClient();
+    const { error } = await client.from("experience_carousel_items").delete().eq("id", id);
     if (error) throw new Error(error.message);
     await invalidateExperienceCache();
 };

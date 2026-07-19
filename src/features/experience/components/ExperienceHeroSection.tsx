@@ -1,50 +1,15 @@
 "use client";
 
 import { motion } from "framer-motion";
+import type { ExperienceCertification, ExperienceCarouselItem } from "../types";
 
-interface CertificationBadge {
-	id: string;
-	label: string;
-	meta: string;
+interface HeroSectionProps {
+	certifications: ExperienceCertification[];
+	carouselItems: ExperienceCarouselItem[];
 }
 
-interface CarouselItem {
-	id: string;
-	title: string;
-	subtitle: string;
-	image?: string;
-}
-
-const certifications: CertificationBadge[] = [
-	{ id: "IPMA", label: "IPMA", meta: "LEVEL D // 2024" },
-	{ id: "SCRUM", label: "SCRUM", meta: "PSM-1 // 2023" },
-	{ id: "UX", label: "UX", meta: "CERTIFIED // 2022" },
-	{ id: "R3F", label: "R3F", meta: "PIPELINE // 2025" },
-];
-
-const carouselItems: CarouselItem[] = [
-	{
-		id: "01",
-		title: "Facility overview",
-		subtitle: "Aperture labs",
-		image: "/images/portal-ending.jpg",
-	},
-	{
-		id: "02",
-		title: "Field diagnostics",
-		subtitle: "Operator UI",
-		image: "/images/portal-ending.jpg",
-	},
-	{
-		id: "03",
-		title: "Telemetry vault",
-		subtitle: "Signal archive",
-		image: "/images/portal-ending.jpg",
-	},
-];
-
-const AutoCarousel = () => {
-	const trackItems = [...carouselItems, ...carouselItems];
+const AutoCarousel = ({ items }: { items: ExperienceCarouselItem[] }) => {
+	const trackItems = [...items, ...items];
 
 	return (
 		<div className="relative w-full max-w-full overflow-hidden rounded-2xl border border-aperture-yellow/20 bg-[#10100b] p-4 shadow-[0_24px_60px_rgba(0,0,0,0.55)] sm:p-5">
@@ -63,9 +28,9 @@ const AutoCarousel = () => {
 						key={`${item.id}-${index}`}
 						className="relative h-[240px] w-[180px] overflow-hidden rounded-xl border border-white/10 bg-black sm:h-[280px] sm:w-[210px] lg:h-[320px] lg:w-[240px]"
 					>
-						{item.image ? (
+						{item.image_path ? (
 							<img
-								src={item.image}
+								src={item.image_path}
 								alt={item.title}
 								className="h-full w-full object-cover opacity-80"
 							/>
@@ -75,7 +40,7 @@ const AutoCarousel = () => {
 						<div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 						<div className="absolute bottom-4 left-4 right-4 space-y-1">
 							<p className="text-[10px] font-mono uppercase tracking-[0.35em] text-aperture-yellow">
-								Log {item.id}
+								Log {item.id.substring(0, 2)}
 							</p>
 							<p className="text-sm font-semibold text-[#f0f0f0]">
 								{item.title}
@@ -91,7 +56,7 @@ const AutoCarousel = () => {
 	);
 };
 
-export default function HeroSection() {
+export default function HeroSection({ certifications, carouselItems }: HeroSectionProps) {
 	return (
 		<section className="relative min-h-screen w-full overflow-hidden px-6 pb-24 pt-28 sm:pt-32 lg:pt-36">
 			<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(242,201,76,0.12),transparent_55%)]" />
@@ -160,7 +125,7 @@ export default function HeroSection() {
 							</span>
 						</div>
 						<div className="w-full min-w-0 overflow-hidden">
-							<AutoCarousel />
+							<AutoCarousel items={carouselItems} />
 						</div>
 					</div>
 				</div>
@@ -171,7 +136,13 @@ export default function HeroSection() {
 							key={badge.id}
 							className="group relative rounded-full border border-aperture-yellow/40 bg-aperture-yellow/10 px-4 py-2 text-[10px] font-mono uppercase tracking-[0.35em] text-aperture-yellow transition hover:bg-aperture-yellow hover:text-black"
 						>
-							{badge.label}
+							{badge.url ? (
+								<a href={badge.url} target="_blank" rel="noopener noreferrer">
+									{badge.title}
+								</a>
+							) : (
+								badge.title
+							)}
 							<div className="pointer-events-none absolute -top-12 left-1/2 w-max -translate-x-1/2 rounded-md border border-white/10 bg-black/80 px-3 py-1 text-[9px] font-mono uppercase tracking-[0.3em] text-zinc-200 opacity-0 transition group-hover:opacity-100">
 								{badge.meta}
 							</div>

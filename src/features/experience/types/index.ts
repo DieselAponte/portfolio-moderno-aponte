@@ -31,3 +31,20 @@ export interface ExperienceSlide {
 	summary: string;
 	tags: string[];
 }
+
+export interface ExperienceCertification {
+	id: string;
+	title: string;
+	meta: string;
+	url?: string;
+	order_index: number;
+}
+
+export interface ExperienceCarouselItem {
+	id: string;
+	title: string;
+	subtitle: string;
+	image_path: string;
+	order_index: number;
+}
+

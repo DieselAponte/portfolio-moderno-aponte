@@ -209,6 +209,49 @@ COMMENT ON TABLE public.guestbook_notes IS 'Visitor guestbook with realtime subs
 
 
 -- =============================================================================
+-- 9. experience_certifications
+-- =============================================================================
+-- Source: experience.service.ts → ExperienceCertification
+-- Columns: id, title, meta, url, order_index
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS public.experience_certifications (
+    id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    title       TEXT NOT NULL,
+    meta        TEXT NOT NULL DEFAULT '',
+    url         TEXT DEFAULT '',
+    order_index INTEGER NOT NULL DEFAULT 0,
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_experience_certifications_order ON public.experience_certifications (order_index ASC);
+
+COMMENT ON TABLE public.experience_certifications IS 'Certification badges displayed on the Experience hero section.';
+
+-- =============================================================================
+-- 10. experience_carousel_items
+-- =============================================================================
+-- Source: experience.service.ts → ExperienceCarouselItem
+-- Columns: id, title, subtitle, image_path, order_index
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS public.experience_carousel_items (
+    id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    title       TEXT NOT NULL,
+    subtitle    TEXT NOT NULL DEFAULT '',
+    image_path  TEXT NOT NULL DEFAULT '',
+    order_index INTEGER NOT NULL DEFAULT 0,
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_experience_carousel_items_order ON public.experience_carousel_items (order_index ASC);
+
+COMMENT ON TABLE public.experience_carousel_items IS 'Carousel items displayed on the Experience hero section.';
+
+
+-- =============================================================================
 -- AUTO-UPDATE updated_at TRIGGER
 -- =============================================================================
 -- Applies to every table that carries an `updated_at` column.
@@ -233,7 +276,9 @@ BEGIN
             'experience_slides',
             'tech_bubbles',
             'home_services',
-            'home_cases_of_study'
+            'home_cases_of_study',
+            'experience_certifications',
+            'experience_carousel_items'
         ])
     LOOP
         EXECUTE format(
@@ -264,8 +309,10 @@ ALTER TABLE public.experience_modules  ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.experience_slides   ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.tech_bubbles        ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.home_services       ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.home_cases_of_study ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.guestbook_notes     ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.home_cases_of_study          ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.experience_certifications     ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.experience_carousel_items     ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.guestbook_notes               ENABLE ROW LEVEL SECURITY;
 
 -- Public read access for all content tables
 DO $$
@@ -281,6 +328,8 @@ BEGIN
             'tech_bubbles',
             'home_services',
             'home_cases_of_study',
+            'experience_certifications',
+            'experience_carousel_items',
             'guestbook_notes'
         ])
     LOOP

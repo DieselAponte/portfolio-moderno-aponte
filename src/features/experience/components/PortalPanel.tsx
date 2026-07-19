@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { motion, useAnimation } from "framer-motion";
-import type { TrajectoryStatus } from "../../types";
+import type { TrajectoryStatus } from "../types";
 
 interface PortalPanelProps {
   id?: string;
