@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useGuestbookAuth } from "../../guestbook/hooks/useGuestbookAuth";
-import type { ExperienceCertification, ExperienceCarouselItem } from "../../experience/types";
+import type { ExperienceCertification, ExperienceCarouselItem, FullPublication, Technology, Topic, PublicationType } from "../../experience/types";
 
 import { RowBubblesCertifications } from "./components/RowBubblesCertifications";
 import { AddBubbleCertPopup } from "./components/AddBubbleCert.popup";
@@ -14,6 +14,10 @@ import { RowItemsCarousel } from "./components/RowItemsCarousel";
 import { AddItemsCarouselPopup } from "./components/AddItemsCarousel.popup";
 import { EditItemsCarouselPopup } from "./components/EditItemsCarousel.popup";
 import { ConfirmDeletePopup } from "../shared/components/ConfirmDelete.popup";
+
+import { TrayectoryTableComponent } from "./components/trayectory/TrayectoryTableComponent";
+import { OnboardingAddNivelPublicacion } from "./components/trayectory/OnboardingAddNivelPublicacion.popup";
+import { OnboardingEditNivelPublicacion } from "./components/trayectory/OnboardingEditNivelPublicacion.popup";
 
 import {
   addCertification,
@@ -26,6 +30,17 @@ import {
   uploadCarouselImage,
 } from "../../experience/services/experience.service";
 
+import {
+  addPublicacion,
+  updatePublicacion,
+  deletePublicacion,
+  uploadPublicacionImage,
+  addTechnology,
+  deleteTechnology as deleteServiceTechnology,
+  addTopic,
+  deleteTopic as deleteServiceTopic,
+} from "../../experience/services/trayectory.service";
+
 type PopupState =
   | { type: "none" }
   | { type: "addCert" }
@@ -33,16 +48,25 @@ type PopupState =
   | { type: "deleteCert"; cert: ExperienceCertification }
   | { type: "addCarousel" }
   | { type: "editCarousel"; item: ExperienceCarouselItem }
-  | { type: "deleteCarousel"; item: ExperienceCarouselItem };
+  | { type: "deleteCarousel"; item: ExperienceCarouselItem }
+  | { type: "addPublicacion" }
+  | { type: "editPublicacion"; pub: FullPublication }
+  | { type: "deletePublicacion"; pub: FullPublication };
 
 interface ExperienceCRUDContainerProps {
   certifications: ExperienceCertification[];
   carouselItems: ExperienceCarouselItem[];
+  publicaciones: FullPublication[];
+  technologies: Technology[];
+  topics: Topic[];
 }
 
 export const ExperienceCRUDContainer = ({
   certifications,
   carouselItems,
+  publicaciones,
+  technologies,
+  topics,
 }: ExperienceCRUDContainerProps) => {
   const router = useRouter();
   const { user, isLoading: authLoading } = useGuestbookAuth();
@@ -68,26 +92,16 @@ export const ExperienceCRUDContainer = ({
   const closePopup = () => setPopup({ type: "none" });
 
   // --- Certification Handlers ---
-  const handleAddCert = async (data: {
-    title: string;
-    meta: string;
-    url?: string;
-    order_index: number;
-  }) => {
+  const handleAddCert = async (data: { title: string; meta: string; url?: string; order_index: number }) => {
     await addCertification(data);
     closePopup();
     router.refresh();
   };
-
-  const handleUpdateCert = async (
-    id: string,
-    updates: Partial<ExperienceCertification>
-  ) => {
+  const handleUpdateCert = async (id: string, updates: Partial<ExperienceCertification>) => {
     await updateCertification(id, updates);
     closePopup();
     router.refresh();
   };
-
   const handleDeleteCert = async (cert: ExperienceCertification) => {
     await deleteCertification(cert.id);
     closePopup();
@@ -98,33 +112,84 @@ export const ExperienceCRUDContainer = ({
   const handleUploadImage = async (file: File): Promise<string> => {
     return await uploadCarouselImage(file);
   };
-
-  const handleAddCarousel = async (data: {
-    title: string;
-    subtitle: string;
-    image_path: string;
-    order_index: number;
-  }) => {
+  const handleAddCarousel = async (data: { title: string; subtitle: string; image_path: string; order_index: number }) => {
     await addCarouselItem(data);
     closePopup();
     router.refresh();
   };
-
-  const handleUpdateCarousel = async (
-    id: string,
-    updates: Partial<ExperienceCarouselItem>
-  ) => {
+  const handleUpdateCarousel = async (id: string, updates: Partial<ExperienceCarouselItem>) => {
     await updateCarouselItem(id, updates);
     closePopup();
     router.refresh();
   };
-
   const handleDeleteCarousel = async (item: ExperienceCarouselItem) => {
-    if (item.image_path) {
-      await deleteCarouselImage(item.image_path);
-    }
+    if (item.image_path) await deleteCarouselImage(item.image_path);
     await deleteCarouselItem(item.id);
     closePopup();
+    router.refresh();
+  };
+
+  // --- Trayectory Handlers ---
+  const handleAddPublicacion = async (
+    type: PublicationType,
+    baseData: Record<string, unknown>,
+    details: Record<string, unknown>,
+    techIds: string[],
+    topicIds: string[],
+    imageFile: File | null,
+    responsibilities?: string[],
+    achievements?: string[],
+  ) => {
+    let imagePath = "";
+    if (imageFile) {
+      imagePath = await uploadPublicacionImage(imageFile);
+    }
+    await addPublicacion(type, { ...baseData, image_path: imagePath } as never, details, techIds, topicIds, responsibilities, achievements);
+    closePopup();
+    router.refresh();
+  };
+
+  const handleUpdatePublicacion = async (
+    id: string,
+    type: PublicationType,
+    baseData: Record<string, unknown>,
+    details: Record<string, unknown>,
+    techIds: string[],
+    topicIds: string[],
+    imageFile: File | null,
+    responsibilities?: string[],
+    achievements?: string[],
+  ) => {
+    let updatedBase = { ...baseData };
+    if (imageFile) {
+      const imagePath = await uploadPublicacionImage(imageFile);
+      updatedBase = { ...updatedBase, image_path: imagePath };
+    }
+    await updatePublicacion(id, type, updatedBase as never, details, techIds, topicIds, responsibilities, achievements);
+    closePopup();
+    router.refresh();
+  };
+
+  const handleDeletePublicacion = async (pub: FullPublication) => {
+    await deletePublicacion(pub.id, pub.image_path);
+    closePopup();
+    router.refresh();
+  };
+
+  const handleAddTech = async (name: string) => {
+    await addTechnology({ name, sector: "Custom" });
+    router.refresh();
+  };
+  const handleDeleteTech = async (id: string) => {
+    await deleteServiceTechnology(id);
+    router.refresh();
+  };
+  const handleAddTopicItem = async (name: string) => {
+    await addTopic(name);
+    router.refresh();
+  };
+  const handleDeleteTopicItem = async (id: string) => {
+    await deleteServiceTopic(id);
     router.refresh();
   };
 
@@ -134,9 +199,7 @@ export const ExperienceCRUDContainer = ({
       <div className="flex min-h-screen items-center justify-center bg-[#0a0a0c]">
         <div className="flex flex-col items-center gap-4">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-aperture-blue border-t-transparent" />
-          <p className="font-mono text-xs uppercase tracking-[0.3em] text-zinc-500">
-            Verificando acceso...
-          </p>
+          <p className="font-mono text-xs uppercase tracking-[0.3em] text-zinc-500">Verificando acceso...</p>
         </div>
       </div>
     );
@@ -146,12 +209,8 @@ export const ExperienceCRUDContainer = ({
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#0a0a0c]">
         <div className="glass-panel rounded-2xl px-8 py-10 text-center">
-          <p className="font-mono text-sm uppercase tracking-[0.3em] text-red-400">
-            Acceso Denegado
-          </p>
-          <p className="mt-2 text-sm text-zinc-400">
-            Debes ser administrador para acceder a este panel.
-          </p>
+          <p className="font-mono text-sm uppercase tracking-[0.3em] text-red-400">Acceso Denegado</p>
+          <p className="mt-2 text-sm text-zinc-400">Debes ser administrador para acceder a este panel.</p>
         </div>
       </div>
     );
@@ -162,118 +221,69 @@ export const ExperienceCRUDContainer = ({
       <div className="mx-auto max-w-5xl">
         {/* Back button + Header */}
         <div className="mb-10">
-          <Link
-            href="/admin/actions"
-            className="mb-6 inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500 transition hover:text-aperture-blue"
-          >
-            <ArrowLeft className="h-3 w-3" />
-            Volver a módulos
+          <Link href="/admin/actions"
+            className="mb-6 inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500 transition hover:text-aperture-blue">
+            <ArrowLeft className="h-3 w-3" /> Volver a módulos
           </Link>
           <div className="text-center">
-            <p className="font-mono text-xs uppercase tracking-[0.5em] text-aperture-yellow">
-              Admin // Experience Module
-            </p>
-            <h1 className="mt-4 text-4xl font-black text-white sm:text-5xl">
-              GESTIÓN EXPERIENCE
-            </h1>
+            <p className="font-mono text-xs uppercase tracking-[0.5em] text-aperture-yellow">Admin // Experience Module</p>
+            <h1 className="mt-4 text-4xl font-black text-white sm:text-5xl">GESTIÓN EXPERIENCE</h1>
           </div>
         </div>
 
-        {/* =========================================== */}
-        {/* Section 1: Certifications & Carousel Items  */}
-        {/* =========================================== */}
-
-        {/* Certifications */}
+        {/* Section 1: Certifications & Carousel Items */}
         <div className="mb-12 rounded-xl border border-aperture-gray/50 bg-aperture-dark/50 p-6">
-          <RowBubblesCertifications
-            certifications={certifications}
-            onAdd={() => setPopup({ type: "addCert" })}
-            onEdit={(cert) => setPopup({ type: "editCert", cert })}
-          />
+          <RowBubblesCertifications certifications={certifications}
+            onAdd={() => setPopup({ type: "addCert" })} onEdit={(cert) => setPopup({ type: "editCert", cert })} />
+        </div>
+        <div className="mb-12 rounded-xl border border-aperture-gray/50 bg-aperture-dark/50 p-6">
+          <RowItemsCarousel items={carouselItems}
+            onAdd={() => setPopup({ type: "addCarousel" })} onEdit={(item) => setPopup({ type: "editCarousel", item })} />
         </div>
 
-        {/* Carousel Items */}
+        {/* Section 2: Trayectoria */}
         <div className="mb-12 rounded-xl border border-aperture-gray/50 bg-aperture-dark/50 p-6">
-          <RowItemsCarousel
-            items={carouselItems}
-            onAdd={() => setPopup({ type: "addCarousel" })}
-            onEdit={(item) => setPopup({ type: "editCarousel", item })}
-          />
-        </div>
-
-        {/* =========================================== */}
-        {/* Section 2: Trayectoria (Próximo Sprint)     */}
-        {/* =========================================== */}
-        <div className="mb-12 rounded-xl border border-aperture-gray/30 bg-aperture-dark/30 p-8">
-          <div className="text-center">
-            <p className="font-mono text-xs uppercase tracking-[0.3em] text-zinc-600">
-              Sección 2 // Trayectoria
-            </p>
-            <p className="mt-2 text-sm text-zinc-500">
-              La gestión de la trayectoria estará disponible en el próximo sprint.
-            </p>
-          </div>
+          <TrayectoryTableComponent publicaciones={publicaciones}
+            onAdd={() => setPopup({ type: "addPublicacion" })} onEdit={(pub) => setPopup({ type: "editPublicacion", pub })} />
         </div>
       </div>
 
-      {/* =========================================== */}
-      {/* Popups                                       */}
-      {/* =========================================== */}
-
+      {/* Popups — Section 1 */}
       {popup.type === "addCert" && (
-        <AddBubbleCertPopup
-          onAdd={handleAddCert}
-          onCancel={closePopup}
-          currentCount={certifications.length}
-        />
+        <AddBubbleCertPopup onAdd={handleAddCert} onCancel={closePopup} currentCount={certifications.length} />
       )}
-
       {popup.type === "editCert" && (
-        <EditBubbleCertPopup
-          cert={popup.cert}
-          onSave={handleUpdateCert}
-          onDelete={() =>
-            setPopup({ type: "deleteCert", cert: popup.cert })
-          }
-          onCancel={closePopup}
-        />
+        <EditBubbleCertPopup cert={popup.cert} onSave={handleUpdateCert}
+          onDelete={() => setPopup({ type: "deleteCert", cert: popup.cert })} onCancel={closePopup} />
       )}
-
       {popup.type === "deleteCert" && (
-        <ConfirmDeletePopup
-          itemTitle={popup.cert.title}
-          onConfirm={() => handleDeleteCert(popup.cert)}
-          onCancel={closePopup}
-        />
+        <ConfirmDeletePopup itemTitle={popup.cert.title} onConfirm={() => handleDeleteCert(popup.cert)} onCancel={closePopup} />
       )}
-
       {popup.type === "addCarousel" && (
-        <AddItemsCarouselPopup
-          onAdd={handleAddCarousel}
-          onUploadImage={handleUploadImage}
-          onCancel={closePopup}
-          currentCount={carouselItems.length}
-        />
+        <AddItemsCarouselPopup onAdd={handleAddCarousel} onUploadImage={handleUploadImage} onCancel={closePopup} currentCount={carouselItems.length} />
       )}
-
       {popup.type === "editCarousel" && (
-        <EditItemsCarouselPopup
-          item={popup.item}
-          onSave={handleUpdateCarousel}
-          onUploadImage={handleUploadImage}
-          onDelete={() =>
-            setPopup({ type: "deleteCarousel", item: popup.item })
-          }
-          onCancel={closePopup}
-        />
+        <EditItemsCarouselPopup item={popup.item} onSave={handleUpdateCarousel} onUploadImage={handleUploadImage}
+          onDelete={() => setPopup({ type: "deleteCarousel", item: popup.item })} onCancel={closePopup} />
+      )}
+      {popup.type === "deleteCarousel" && (
+        <ConfirmDeletePopup itemTitle={popup.item.title} onConfirm={() => handleDeleteCarousel(popup.item)} onCancel={closePopup} />
       )}
 
-      {popup.type === "deleteCarousel" && (
-        <ConfirmDeletePopup
-          itemTitle={popup.item.title}
-          onConfirm={() => handleDeleteCarousel(popup.item)}
-          onCancel={closePopup}
-        />
+      {/* Popups — Section 2 */}
+      {popup.type === "addPublicacion" && (
+        <OnboardingAddNivelPublicacion technologies={technologies} topics={topics} currentCount={publicaciones.length}
+          onSubmit={handleAddPublicacion} onAddTechnology={handleAddTech} onDeleteTechnology={handleDeleteTech}
+          onAddTopic={handleAddTopicItem} onDeleteTopic={handleDeleteTopicItem} onCancel={closePopup} />
+      )}
+      {popup.type === "editPublicacion" && (
+        <OnboardingEditNivelPublicacion publication={popup.pub} technologies={technologies} topics={topics}
+          onSave={handleUpdatePublicacion} onDelete={() => setPopup({ type: "deletePublicacion", pub: popup.pub })}
+          onAddTechnology={handleAddTech} onDeleteTechnology={handleDeleteTech}
+          onAddTopic={handleAddTopicItem} onDeleteTopic={handleDeleteTopicItem} onCancel={closePopup} />
+      )}
+      {popup.type === "deletePublicacion" && (
+        <ConfirmDeletePopup itemTitle={popup.pub.title} onConfirm={() => handleDeletePublicacion(popup.pub)} onCancel={closePopup} />
       )}
     </div>
   );

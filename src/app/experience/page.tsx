@@ -1,20 +1,17 @@
 import ExperienceContainer from "../../features/experience/ExperienceContainer";
-import { fetchModules, fetchSlides, fetchTechBubbles, fetchCertifications, fetchCarouselItems } from "../../features/experience/services/experience.service";
+import { fetchCertifications, fetchCarouselItems } from "../../features/experience/services/experience.service";
+import { fetchPublicaciones } from "../../features/experience/services/trayectory.service";
 
 export default async function ExperiencePage() {
-  const [modules, slides, techBubbles, certifications, carouselItems] = await Promise.all([
-    fetchModules(),
-    fetchSlides(),
-    fetchTechBubbles(),
+  const [publicaciones, certifications, carouselItems] = await Promise.all([
+    fetchPublicaciones(),
     fetchCertifications(),
     fetchCarouselItems(),
   ]);
 
   return (
     <ExperienceContainer
-      modules={modules}
-      slides={slides}
-      techBubbles={techBubbles}
+      publicaciones={publicaciones}
       certifications={certifications}
       carouselItems={carouselItems}
     />

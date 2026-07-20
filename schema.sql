@@ -252,6 +252,165 @@ COMMENT ON TABLE public.experience_carousel_items IS 'Carousel items displayed o
 
 
 -- =============================================================================
+-- 9. technologies (catalog)
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS public.technologies (
+    id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name          TEXT NOT NULL UNIQUE,
+    icon          TEXT,
+    sector        TEXT NOT NULL DEFAULT 'General',
+    is_predefined BOOLEAN NOT NULL DEFAULT false,
+    created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+COMMENT ON TABLE public.technologies IS 'Catalog of technologies, both predefined and user-created.';
+
+-- =============================================================================
+-- 10. topics (catalog)
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS public.topics (
+    id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name          TEXT NOT NULL UNIQUE,
+    is_predefined BOOLEAN NOT NULL DEFAULT false,
+    created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+COMMENT ON TABLE public.topics IS 'Catalog of topics, both predefined and user-created.';
+
+-- =============================================================================
+-- 11. nivel_publicacion (base)
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS public.nivel_publicacion (
+    id                UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    title             TEXT NOT NULL,
+    description       TEXT NOT NULL DEFAULT '',
+    image_path        TEXT NOT NULL DEFAULT '',
+    image_description TEXT NOT NULL DEFAULT '',
+    type              TEXT NOT NULL CHECK (type IN ('EDUCATION', 'PROJECT', 'EXPERIENCE')),
+    order_index       INTEGER NOT NULL DEFAULT 0,
+    created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at        TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_nivel_publicacion_order ON public.nivel_publicacion (order_index ASC);
+CREATE INDEX IF NOT EXISTS idx_nivel_publicacion_type  ON public.nivel_publicacion (type);
+
+COMMENT ON TABLE public.nivel_publicacion IS 'Base table for trajectory publications (Education, Project, Experience).';
+
+-- =============================================================================
+-- 12. education_details (1:1 with nivel_publicacion)
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS public.education_details (
+    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    publicacion_id  UUID NOT NULL UNIQUE REFERENCES public.nivel_publicacion(id) ON DELETE CASCADE,
+    institution     TEXT NOT NULL DEFAULT '',
+    obtained_date   TEXT NOT NULL DEFAULT '',
+    skills_learned  TEXT[] NOT NULL DEFAULT '{}',
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+COMMENT ON TABLE public.education_details IS 'Details specific to EDUCATION type publications.';
+
+-- =============================================================================
+-- 13. project_details (1:1 with nivel_publicacion)
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS public.project_details (
+    id               UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    publicacion_id   UUID NOT NULL UNIQUE REFERENCES public.nivel_publicacion(id) ON DELETE CASCADE,
+    why_i_built_this TEXT NOT NULL DEFAULT '',
+    how_it_works     TEXT NOT NULL DEFAULT '',
+    what_i_learned   TEXT[] NOT NULL DEFAULT '{}',
+    url_repository   TEXT NOT NULL DEFAULT '',
+    status           TEXT NOT NULL DEFAULT 'En etapa de Diseño'
+                         CHECK (status IN ('En etapa de Diseño', 'En desarrollo', 'Terminado')),
+    created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at       TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+COMMENT ON TABLE public.project_details IS 'Details specific to PROJECT type publications.';
+
+-- =============================================================================
+-- 14. professional_exp_details (1:1 with nivel_publicacion)
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS public.professional_exp_details (
+    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    publicacion_id  UUID NOT NULL UNIQUE REFERENCES public.nivel_publicacion(id) ON DELETE CASCADE,
+    company         TEXT NOT NULL DEFAULT '',
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+COMMENT ON TABLE public.professional_exp_details IS 'Details specific to EXPERIENCE type publications.';
+
+-- =============================================================================
+-- 15. publication_responsibilities (independent table)
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS public.publication_responsibilities (
+    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    publicacion_id  UUID NOT NULL REFERENCES public.nivel_publicacion(id) ON DELETE CASCADE,
+    content         TEXT NOT NULL DEFAULT '',
+    order_index     INTEGER NOT NULL DEFAULT 0,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_pub_responsibilities_pub ON public.publication_responsibilities (publicacion_id);
+
+COMMENT ON TABLE public.publication_responsibilities IS 'Professional responsibilities associated with EXPERIENCE publications.';
+
+-- =============================================================================
+-- 16. publication_achievements (independent table)
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS public.publication_achievements (
+    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    publicacion_id  UUID NOT NULL REFERENCES public.nivel_publicacion(id) ON DELETE CASCADE,
+    content         TEXT NOT NULL DEFAULT '',
+    order_index     INTEGER NOT NULL DEFAULT 0,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_pub_achievements_pub ON public.publication_achievements (publicacion_id);
+
+COMMENT ON TABLE public.publication_achievements IS 'Professional achievements associated with EXPERIENCE publications.';
+
+-- =============================================================================
+-- 17. nivel_publicacion_technologies (N:M junction)
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS public.nivel_publicacion_technologies (
+    publicacion_id UUID NOT NULL REFERENCES public.nivel_publicacion(id) ON DELETE CASCADE,
+    technology_id  UUID NOT NULL REFERENCES public.technologies(id) ON DELETE CASCADE,
+    PRIMARY KEY (publicacion_id, technology_id)
+);
+
+COMMENT ON TABLE public.nivel_publicacion_technologies IS 'Junction table linking publications to technologies.';
+
+-- =============================================================================
+-- 18. nivel_publicacion_topics (N:M junction)
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS public.nivel_publicacion_topics (
+    publicacion_id UUID NOT NULL REFERENCES public.nivel_publicacion(id) ON DELETE CASCADE,
+    topic_id       UUID NOT NULL REFERENCES public.topics(id) ON DELETE CASCADE,
+    PRIMARY KEY (publicacion_id, topic_id)
+);
+
+COMMENT ON TABLE public.nivel_publicacion_topics IS 'Junction table linking publications to topics.';
+
+
+-- =============================================================================
 -- AUTO-UPDATE updated_at TRIGGER
 -- =============================================================================
 -- Applies to every table that carries an `updated_at` column.
@@ -278,7 +437,15 @@ BEGIN
             'home_services',
             'home_cases_of_study',
             'experience_certifications',
-            'experience_carousel_items'
+            'experience_carousel_items',
+            'technologies',
+            'topics',
+            'nivel_publicacion',
+            'education_details',
+            'project_details',
+            'professional_exp_details',
+            'publication_responsibilities',
+            'publication_achievements'
         ])
     LOOP
         EXECUTE format(
@@ -312,6 +479,16 @@ ALTER TABLE public.home_services       ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.home_cases_of_study          ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.experience_certifications     ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.experience_carousel_items     ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.technologies                  ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.topics                        ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.nivel_publicacion             ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.education_details             ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.project_details               ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.professional_exp_details      ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.publication_responsibilities  ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.publication_achievements      ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.nivel_publicacion_technologies ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.nivel_publicacion_topics      ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.guestbook_notes               ENABLE ROW LEVEL SECURITY;
 
 -- Public read access for all content tables
@@ -330,6 +507,16 @@ BEGIN
             'home_cases_of_study',
             'experience_certifications',
             'experience_carousel_items',
+            'technologies',
+            'topics',
+            'nivel_publicacion',
+            'education_details',
+            'project_details',
+            'professional_exp_details',
+            'publication_responsibilities',
+            'publication_achievements',
+            'nivel_publicacion_technologies',
+            'nivel_publicacion_topics',
             'guestbook_notes'
         ])
     LOOP
