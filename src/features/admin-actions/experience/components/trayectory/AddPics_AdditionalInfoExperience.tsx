@@ -22,6 +22,7 @@ interface AddPicsAdditionalInfoExperienceProps {
     onDeleteTechnology: (id: string) => Promise<void>;
     onSubmit: () => void;
     isSubmitting: boolean;
+    submitStatus?: "idle" | "optimizing" | "uploading" | "saving";
     error: string;
 }
 
@@ -41,6 +42,7 @@ export const AddPicsAdditionalInfoExperience = ({
     onDeleteTechnology,
     onSubmit,
     isSubmitting,
+    submitStatus = "idle",
     error,
 }: AddPicsAdditionalInfoExperienceProps) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -138,7 +140,10 @@ export const AddPicsAdditionalInfoExperience = ({
                     {isSubmitting ? (
                         <span className="flex items-center gap-2">
                             <span className="h-3 w-3 animate-spin rounded-full border border-aperture-blue border-t-transparent" />
-                            Añadiendo...
+                            {submitStatus === "optimizing" && "Optimizando..."}
+                            {submitStatus === "uploading" && "Subiendo..."}
+                            {submitStatus === "saving" && "Guardando..."}
+                            {submitStatus === "idle" && "Añadiendo..."}
                         </span>
                     ) : "Añadir Publicación"}
                 </button>

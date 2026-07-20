@@ -21,6 +21,7 @@ interface EditPicsAdditionalInfoProjectProps {
     onBack: () => void;
     onSave: () => void;
     isSaving: boolean;
+    submitStatus?: "idle" | "optimizing" | "uploading" | "saving";
     error: string;
 }
 
@@ -78,7 +79,15 @@ export const EditPicsAdditionalInfoProject = (props: EditPicsAdditionalInfoProje
                 <div className="flex-1" />
                 <button type="button" onClick={props.onSave} disabled={props.isSaving}
                     className="rounded-lg border border-aperture-blue/50 bg-aperture-blue/10 px-6 py-2.5 font-mono text-xs uppercase tracking-[0.2em] text-aperture-blue transition hover:bg-aperture-blue/20 hover:text-white disabled:opacity-50">
-                    {props.isSaving ? <span className="flex items-center gap-2"><span className="h-3 w-3 animate-spin rounded-full border border-aperture-blue border-t-transparent" /> Guardando...</span> : "Guardar Cambios"}
+                    {props.isSaving ? (
+                        <span className="flex items-center gap-2">
+                            <span className="h-3 w-3 animate-spin rounded-full border border-aperture-blue border-t-transparent" />
+                            {props.submitStatus === "optimizing" && "Optimizando..."}
+                            {props.submitStatus === "uploading" && "Subiendo..."}
+                            {props.submitStatus === "saving" && "Guardando..."}
+                            {props.submitStatus === "idle" && "Guardando..."}
+                        </span>
+                    ) : "Guardar Cambios"}
                 </button>
             </div>
         </div>

@@ -3,6 +3,7 @@
 import { getSupabaseClient } from "../../../lib/supabase";
 import { redis } from "../../../lib/redis";
 import { checkAdminAuth } from "../../../lib/admin-auth";
+import { deleteStorageAsset } from "../../../app/actions/storage-actions";
 import type {
     Technology,
     Topic,
@@ -118,39 +119,6 @@ export const deleteTopic = async (id: string) => {
     const { error } = await client.from("topics").delete().eq("id", id);
     if (error) throw new Error(error.message);
     await invalidateTrayectoryCache();
-};
-
-// =============================================================================
-// Publicacion Image Storage
-// =============================================================================
-
-export const uploadPublicacionImage = async (file: File): Promise<string> => {
-    await checkAdminAuth();
-    const client = getSupabaseClient();
-    const fileExt = file.name.split(".").pop();
-    const fileName = `publicacion-${Date.now()}.${fileExt}`;
-    const filePath = `publicacion-images/${fileName}`;
-
-    const { error } = await client.storage.from("experience").upload(filePath, file, {
-        cacheControl: "3600",
-        upsert: false,
-    });
-    if (error) throw new Error(error.message);
-
-    const { data: publicUrlData } = client.storage.from("experience").getPublicUrl(filePath);
-    return publicUrlData.publicUrl;
-};
-
-export const deletePublicacionImage = async (imagePath: string) => {
-    await checkAdminAuth();
-    const client = getSupabaseClient();
-    const bucketPrefix = "/experience/";
-    const idx = imagePath.indexOf(bucketPrefix);
-    if (idx === -1) return;
-    const storagePath = imagePath.substring(idx + bucketPrefix.length);
-
-    const { error } = await client.storage.from("experience").remove([storagePath]);
-    if (error) console.error("Error deleting publicacion image:", error);
 };
 
 // =============================================================================
@@ -405,7 +373,11 @@ export const deletePublicacion = async (id: string, imagePath?: string) => {
 
     // Delete image from storage if exists
     if (imagePath) {
-        await deletePublicacionImage(imagePath);
+        try {
+            await deleteStorageAsset(imagePath);
+        } catch (error) {
+            console.error("Failed to delete storage asset:", error);
+        }
     }
 
     // Cascade delete will handle details, junctions, responsibilities, achievements

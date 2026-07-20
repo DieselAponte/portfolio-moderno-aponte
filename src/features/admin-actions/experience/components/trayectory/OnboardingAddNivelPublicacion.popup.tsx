@@ -27,6 +27,7 @@ interface OnboardingAddProps {
         imageFile: File | null,
         responsibilities?: string[],
         achievements?: string[],
+        onProgress?: (status: "optimizing" | "uploading" | "saving") => void
     ) => Promise<void>;
     onAddTechnology: (name: string) => Promise<void>;
     onDeleteTechnology: (id: string) => Promise<void>;
@@ -50,6 +51,7 @@ export const OnboardingAddNivelPublicacion = ({
     const [selectedType, setSelectedType] = useState<PublicationType | null>(null);
     const [error, setError] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitStatus, setSubmitStatus] = useState<"idle" | "optimizing" | "uploading" | "saving">("idle");
 
     // Shared state
     const [imageFile, setImageFile] = useState<File | null>(null);
@@ -115,14 +117,16 @@ export const OnboardingAddNivelPublicacion = ({
         if (!imageDescription.trim()) { setError("La descripción de la imagen es obligatoria."); return; }
 
         setIsSubmitting(true);
+        setSubmitStatus("optimizing");
         try {
             if (selectedType === PublicationType.EDUCATION) {
-                if (skillsLearned.filter((s) => s.trim()).length < 3) { setError("Al menos 3 skills son obligatorios."); setIsSubmitting(false); return; }
+                if (skillsLearned.filter((s) => s.trim()).length < 3) { setError("Al menos 3 skills son obligatorios."); setIsSubmitting(false); setSubmitStatus("idle"); return; }
                 await onSubmit(
                     PublicationType.EDUCATION,
                     { title: eduData.titulo.trim(), description: eduData.descripcion.trim(), image_description: imageDescription.trim(), type: PublicationType.EDUCATION, order_index: currentCount + 1 },
                     { institution: eduData.institution.trim(), obtained_date: eduData.obtainedDate, skills_learned: skillsLearned.filter((s) => s.trim()) },
                     selectedTechIds, selectedTopicIds, imageFile,
+                    undefined, undefined, setSubmitStatus
                 );
             } else if (selectedType === PublicationType.PROJECT) {
                 await onSubmit(
@@ -130,10 +134,11 @@ export const OnboardingAddNivelPublicacion = ({
                     { title: projData.titulo.trim(), description: projData.descripcion.trim(), image_description: imageDescription.trim(), type: PublicationType.PROJECT, order_index: currentCount + 1 },
                     { why_i_built_this: projData.whyIBuiltThis.trim(), how_it_works: projData.howItWorks.trim(), what_i_learned: projData.whatILearned.filter((s) => s.trim()), url_repository: projData.urlRepository.trim(), status: projStatus },
                     selectedTechIds, [], imageFile,
+                    undefined, undefined, setSubmitStatus
                 );
             } else if (selectedType === PublicationType.EXPERIENCE) {
-                if (responsibilities.filter((s) => s.trim()).length < 3) { setError("Al menos 3 responsabilidades son obligatorias."); setIsSubmitting(false); return; }
-                if (achievements.filter((s) => s.trim()).length < 3) { setError("Al menos 3 logros son obligatorios."); setIsSubmitting(false); return; }
+                if (responsibilities.filter((s) => s.trim()).length < 3) { setError("Al menos 3 responsabilidades son obligatorias."); setIsSubmitting(false); setSubmitStatus("idle"); return; }
+                if (achievements.filter((s) => s.trim()).length < 3) { setError("Al menos 3 logros son obligatorios."); setIsSubmitting(false); setSubmitStatus("idle"); return; }
                 await onSubmit(
                     PublicationType.EXPERIENCE,
                     { title: expData.titulo.trim(), description: expData.descripcion.trim(), image_description: imageDescription.trim(), type: PublicationType.EXPERIENCE, order_index: currentCount + 1 },
@@ -141,11 +146,13 @@ export const OnboardingAddNivelPublicacion = ({
                     selectedTechIds, [], imageFile,
                     responsibilities.filter((s) => s.trim()),
                     achievements.filter((s) => s.trim()),
+                    setSubmitStatus
                 );
             }
         } catch (err) {
             setError(err instanceof Error ? err.message : "Error al crear publicación.");
             setIsSubmitting(false);
+            setSubmitStatus("idle");
         }
     };
 
@@ -191,7 +198,7 @@ export const OnboardingAddNivelPublicacion = ({
                         onSkillsChange={setSkillsLearned} onTopicToggle={toggleTopic} onTechToggle={toggleTech}
                         onAddTechnology={onAddTechnology} onDeleteTechnology={onDeleteTechnology}
                         onAddTopic={onAddTopic} onDeleteTopic={onDeleteTopic}
-                        onSubmit={handleFinalSubmit} isSubmitting={isSubmitting} error={error}
+                        onSubmit={handleFinalSubmit} isSubmitting={isSubmitting} submitStatus={submitStatus} error={error}
                     />
                 )}
                 {step === "step2" && selectedType === PublicationType.PROJECT && (
@@ -201,7 +208,7 @@ export const OnboardingAddNivelPublicacion = ({
                         onImageChange={handleImageChange} onImageDescriptionChange={setImageDescription}
                         onStatusChange={setProjStatus} onTechToggle={toggleTech}
                         onAddTechnology={onAddTechnology} onDeleteTechnology={onDeleteTechnology}
-                        onSubmit={handleFinalSubmit} isSubmitting={isSubmitting} error={error}
+                        onSubmit={handleFinalSubmit} isSubmitting={isSubmitting} submitStatus={submitStatus} error={error}
                     />
                 )}
                 {step === "step2" && selectedType === PublicationType.EXPERIENCE && (
@@ -212,7 +219,7 @@ export const OnboardingAddNivelPublicacion = ({
                         onImageChange={handleImageChange} onImageDescriptionChange={setImageDescription}
                         onResponsibilitiesChange={setResponsibilities} onAchievementsChange={setAchievements}
                         onTechToggle={toggleTech} onAddTechnology={onAddTechnology} onDeleteTechnology={onDeleteTechnology}
-                        onSubmit={handleFinalSubmit} isSubmitting={isSubmitting} error={error}
+                        onSubmit={handleFinalSubmit} isSubmitting={isSubmitting} submitStatus={submitStatus} error={error}
                     />
                 )}
             </div>

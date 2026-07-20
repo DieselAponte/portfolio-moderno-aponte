@@ -27,6 +27,7 @@ interface OnboardingEditProps {
         imageFile: File | null,
         responsibilities?: string[],
         achievements?: string[],
+        onProgress?: (status: "optimizing" | "uploading" | "saving") => void
     ) => Promise<void>;
     onDelete: () => void;
     onAddTechnology: (name: string) => Promise<void>;
@@ -51,6 +52,7 @@ export const OnboardingEditNivelPublicacion = ({
     const [step, setStep] = useState<Step>("step1");
     const [error, setError] = useState("");
     const [isSaving, setIsSaving] = useState(false);
+    const [submitStatus, setSubmitStatus] = useState<"idle" | "optimizing" | "uploading" | "saving">("idle");
 
     // Shared state
     const [imageFile, setImageFile] = useState<File | null>(null);
@@ -123,6 +125,7 @@ export const OnboardingEditNivelPublicacion = ({
         setError("");
         if (!imageDescription.trim()) { setError("La descripción de la imagen es obligatoria."); return; }
         setIsSaving(true);
+        setSubmitStatus("optimizing");
         try {
             const type = publication.type;
             if (type === PublicationType.EDUCATION) {
@@ -130,12 +133,14 @@ export const OnboardingEditNivelPublicacion = ({
                     { title: eduData.titulo.trim(), description: eduData.descripcion.trim(), image_description: imageDescription.trim() },
                     { institution: eduData.institution.trim(), obtained_date: eduData.obtainedDate, skills_learned: skillsLearned.filter((s: string) => s.trim()) },
                     selectedTechIds, selectedTopicIds, imageFile,
+                    undefined, undefined, setSubmitStatus
                 );
             } else if (type === PublicationType.PROJECT) {
                 await onSave(publication.id, type,
                     { title: projData.titulo.trim(), description: projData.descripcion.trim(), image_description: imageDescription.trim() },
                     { why_i_built_this: projData.whyIBuiltThis.trim(), how_it_works: projData.howItWorks.trim(), what_i_learned: projData.whatILearned.filter((s: string) => s.trim()), url_repository: projData.urlRepository.trim(), status: projStatus },
                     selectedTechIds, [], imageFile,
+                    undefined, undefined, setSubmitStatus
                 );
             } else {
                 await onSave(publication.id, type,
@@ -144,11 +149,13 @@ export const OnboardingEditNivelPublicacion = ({
                     selectedTechIds, [], imageFile,
                     responsibilities.filter((s: string) => s.trim()),
                     achievements.filter((s: string) => s.trim()),
+                    setSubmitStatus
                 );
             }
         } catch (err) {
             setError(err instanceof Error ? err.message : "Error al guardar.");
             setIsSaving(false);
+            setSubmitStatus("idle");
         }
     };
 

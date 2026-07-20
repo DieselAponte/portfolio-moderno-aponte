@@ -19,6 +19,10 @@ import { TrayectoryTableComponent } from "./components/trayectory/TrayectoryTabl
 import { OnboardingAddNivelPublicacion } from "./components/trayectory/OnboardingAddNivelPublicacion.popup";
 import { OnboardingEditNivelPublicacion } from "./components/trayectory/OnboardingEditNivelPublicacion.popup";
 
+import { optimizeImage } from "../../../lib/utils/image-optimizer";
+import { uploadStorageAsset, deleteStorageAsset } from "../../../app/actions/storage-actions";
+
+
 import {
   addCertification,
   updateCertification,
@@ -34,7 +38,6 @@ import {
   addPublicacion,
   updatePublicacion,
   deletePublicacion,
-  uploadPublicacionImage,
   addTechnology,
   deleteTechnology as deleteServiceTechnology,
   addTopic,
@@ -139,12 +142,34 @@ export const ExperienceCRUDContainer = ({
     imageFile: File | null,
     responsibilities?: string[],
     achievements?: string[],
+    onProgress?: (status: "optimizing" | "uploading" | "saving") => void
   ) => {
     let imagePath = "";
     if (imageFile) {
-      imagePath = await uploadPublicacionImage(imageFile);
+      if (onProgress) onProgress("optimizing");
+      const optimizedFile = await optimizeImage(imageFile, { maxWidth: 1200, maxHeight: 1200, quality: 0.8 });
+      
+      if (onProgress) onProgress("uploading");
+      const formData = new FormData();
+      formData.append("file", optimizedFile);
+      formData.append("folder", "experience");
+      const hash = Math.random().toString(36).substring(2, 8);
+      const name = baseData.title ? String(baseData.title).toLowerCase().replace(/[^a-z0-9]+/g, "-") : "pub";
+      formData.append("filename", `${name}-${hash}.${optimizedFile.name.split('.').pop()}`);
+      
+      imagePath = await uploadStorageAsset(formData);
     }
-    await addPublicacion(type, { ...baseData, image_path: imagePath } as never, details, techIds, topicIds, responsibilities, achievements);
+    
+    if (onProgress) onProgress("saving");
+    try {
+      await addPublicacion(type, { ...baseData, image_path: imagePath } as never, details, techIds, topicIds, responsibilities, achievements);
+    } catch (error) {
+      if (imagePath) {
+        await deleteStorageAsset(imagePath).catch(console.error);
+      }
+      throw error;
+    }
+    
     closePopup();
     router.refresh();
   };
@@ -159,13 +184,37 @@ export const ExperienceCRUDContainer = ({
     imageFile: File | null,
     responsibilities?: string[],
     achievements?: string[],
+    onProgress?: (status: "optimizing" | "uploading" | "saving") => void
   ) => {
     let updatedBase = { ...baseData };
+    let newImagePath = "";
+    
     if (imageFile) {
-      const imagePath = await uploadPublicacionImage(imageFile);
-      updatedBase = { ...updatedBase, image_path: imagePath };
+      if (onProgress) onProgress("optimizing");
+      const optimizedFile = await optimizeImage(imageFile, { maxWidth: 1200, maxHeight: 1200, quality: 0.8 });
+      
+      if (onProgress) onProgress("uploading");
+      const formData = new FormData();
+      formData.append("file", optimizedFile);
+      formData.append("folder", "experience");
+      const hash = Math.random().toString(36).substring(2, 8);
+      const name = baseData.title ? String(baseData.title).toLowerCase().replace(/[^a-z0-9]+/g, "-") : "pub";
+      formData.append("filename", `${name}-${hash}.${optimizedFile.name.split('.').pop()}`);
+      
+      newImagePath = await uploadStorageAsset(formData);
+      updatedBase = { ...updatedBase, image_path: newImagePath };
     }
-    await updatePublicacion(id, type, updatedBase as never, details, techIds, topicIds, responsibilities, achievements);
+    
+    if (onProgress) onProgress("saving");
+    try {
+      await updatePublicacion(id, type, updatedBase as never, details, techIds, topicIds, responsibilities, achievements);
+    } catch (error) {
+      if (newImagePath) {
+        await deleteStorageAsset(newImagePath).catch(console.error);
+      }
+      throw error;
+    }
+
     closePopup();
     router.refresh();
   };
