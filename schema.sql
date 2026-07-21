@@ -449,11 +449,12 @@ BEGIN
         ])
     LOOP
         EXECUTE format(
-            'CREATE TRIGGER trg_%I_updated_at
+            'DROP TRIGGER IF EXISTS trg_%I_updated_at ON public.%I;
+             CREATE TRIGGER trg_%I_updated_at
                 BEFORE UPDATE ON public.%I
                 FOR EACH ROW
                 EXECUTE FUNCTION public.set_updated_at();',
-            tbl, tbl
+            tbl, tbl, tbl, tbl
         );
     END LOOP;
 END;
@@ -521,22 +522,24 @@ BEGIN
         ])
     LOOP
         EXECUTE format(
-            'CREATE POLICY "Allow public read on %I"
+            'DROP POLICY IF EXISTS "Allow public read on %I" ON public.%I;
+             CREATE POLICY "Allow public read on %I"
                 ON public.%I
                 FOR SELECT
                 USING (true);',
-            tbl, tbl
+            tbl, tbl, tbl, tbl
         );
     END LOOP;
 END;
 $$;
 
 -- Guestbook: authenticated users can insert their own notes
+DROP POLICY IF EXISTS "Authenticated users can insert guestbook notes" ON public.guestbook_notes;
 CREATE POLICY "Authenticated users can insert guestbook notes"
     ON public.guestbook_notes
     FOR INSERT
     TO authenticated
-    WITH CHECK (auth.uid() = user_id);
+    WITH CHECK (auth.uid()::text = user_id::text);
 
 
 -- =============================================================================
@@ -544,7 +547,13 @@ CREATE POLICY "Authenticated users can insert guestbook notes"
 -- =============================================================================
 -- The guestbook subscribes to INSERT events via Supabase Realtime.
 
-ALTER PUBLICATION supabase_realtime ADD TABLE public.guestbook_notes;
+DO $$
+BEGIN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.guestbook_notes;
+EXCEPTION WHEN duplicate_object THEN
+    -- Ignore error if it's already a member
+END;
+$$;
 
 
 -- =============================================================================
